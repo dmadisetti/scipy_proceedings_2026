@@ -9,7 +9,7 @@ jobs:
       id-pattern-regex: '^scipy-2025-test-(?:[a-zA-Z0-9-_]{3,25})$'
       venue: scipy
       collection: '2025-test'
-      kind: Article
+      kind: article
       path: papers/*
       publish: true
     secrets:
