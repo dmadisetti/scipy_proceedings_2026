@@ -84,7 +84,7 @@ The community is involved in the entire process for creating the proceedings, wh
 
 ## Contacting the Proceedings Co-Chairs
 
-The most effective way to contact the Proceedings Co-Chairs for issues related to this GitHub repository is to use GitHub's issues and "@"-mentioning the Co-Chairs.
+The most effective way to contact the Proceedings Co-Chairs for issues related to this GitHub repository is to use GitHub's issues and "@"-mentioning the Co-Chairs, either individually or with the team `@scipy-conference/2025-proceedings`.
 
 In 2025, the Proceedings Co-Chairs are:
 
@@ -130,12 +130,13 @@ Please submit your papers by 23:59 PST of the _Deadline to submit first draft_.
 Submit your papers as a MyST Markdown ([mystmd.org](https://mystmd.org)), narrative Jupyter Notebook, or
 LaTeX file via PR against this repository.
 Please only use LaTeX if you are already familiar with writing papers in LaTeX.
-The build process are using the `mystmd` CLI, which allows us to support
+The build process uses the `mystmd` CLI, which allows us to support
 a web-first reading experience.
 
-
-This is the first year the SciPy proceedings are accepting interactive notebooks and computational environments. These are also supported natively by the `mystmd` tools. By submitting a Jupyter Notebook, you are bringing your publication closer to your research, facilitating reproducibility, and allowing for interactive figures that more deeply communicate your results.
-However, as this is the first year notebooks are accepted, the Proceedings Co-chairs are still refining the constraints around interactivity. If you are interested in submitting a notebook, you are welcome to reach out to the Proceedings Co-chairs for help. If your submission includes large datasets, a complex environment, or intensive computation we will do what we can to make publication possible!
+This is the first year the SciPy proceedings are accepting interactive notebooks and computational environments.
+These are also supported natively by the `mystmd` tools.
+By submitting a Jupyter Notebook, you are bringing your publication closer to your research, facilitating reproducibility, and allowing for interactive figures that more deeply communicate your results.
+If you are interested in submitting an interactive notebook, please contact the Proceedings Co-chairs using the `@scipy-conference/2025-proceedings` team.
 
 During the Open Review Period authors should work with their reviewers to refine
 and improve their submission.
