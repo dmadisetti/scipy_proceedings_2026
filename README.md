@@ -525,7 +525,7 @@ Editors should come to a final 'ready', 'unready' decision before the **Final Ed
 
 ```yaml
 version: 1
-extends: ../../proceedings.yml
+extends: ../../../proceedings.yml
 project:
   title: 'The title of your presentation'
   authors:
@@ -543,4 +543,4 @@ project:
 
 7. [Create a PR](#create-a-paper-pr)
 
-You can see examples of submissions in the `example` folder in each presentation directory.
+You can see examples of submissions in the `example` folder in each presentation directory. For slides and posters, you should use the corresponding prefix for your PR title, e.g. `Slides:`.
