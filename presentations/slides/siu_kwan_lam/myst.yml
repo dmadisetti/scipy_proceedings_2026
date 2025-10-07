@@ -1,5 +1,5 @@
 version: 1
-extends: ../../proceedings.yml
+extends: ../../../proceedings.yml
 project:
   title: 'Numba v2: Towards a SuperOptimizing Python Compiler'
   authors:

@@ -1,9 +1,8 @@
 version: 1
-extends: ../../proceedings.yml
+extends: ../../../proceedings.yml
 project:
   title: 'Keeping Python Fun: Using Robotics Competitions to Teach Data Analysis and Application Development'
   authors:
-
     - name: Olivia Yang
       orcid: 0009-0000-6052-4349
       affiliations:

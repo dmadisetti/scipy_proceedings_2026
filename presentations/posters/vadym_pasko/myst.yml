@@ -1,7 +1,7 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
-  title: "Enhancing Curve Fitting with SciPy: Interactive Spline Modeling and Reproducibility with SplineCloud"
+  title: 'Enhancing Curve Fitting with SciPy: Interactive Spline Modeling and Reproducibility with SplineCloud'
   authors:
     - name: Vadym Pasko
       orcid: 0009-0001-7739-2204
@@ -14,7 +14,7 @@ project:
     However, selecting and tuning the right fitting model for complex, noisy, or multidimensional data remains a significant challenge.
     SciPy plays a critical role in addressing these challenges by providing robust spline fitting methods that offer flexibility and precision. 
     Yet, fine-tuning spline parameters, ensuring stability in extrapolation, and sharing fitted models for reproducibility remain open problems.
-    
+
     In order to address these challenges, we developed SplineCloud - an open platform that provides interactive spline fitting capabilities 
     and uses SciPy on the backend. SplineCloud allows the construction, analysis, and exchange of spline-based regression models 
     using SciPy’s `interpolate` module. SplineCloud’s curve fitting tool extends the capabilities of SciPy spline fitting methods 
@@ -25,4 +25,3 @@ project:
     The proposed approach of interactive cloud-based fitting improves data processing workflows, allows separating data preparation and 
     approximation routines from the main code, and brings FAIR principles to the curve fitting, enabling researchers to construct and share 
     libraries of empirical data relations.
-

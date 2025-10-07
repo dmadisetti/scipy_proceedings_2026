@@ -22,5 +22,5 @@ project:
     Each serverless function will read and process a small portion of the cloud-optimized dataset, being read in parallel directly from object storage, significantly increasing the speedup. 
     In this talk, you will learn how to process cloud-optimized data formats in Python using the Lithops toolkit.
     Lithops is a serverless data processing toolkit that is specially designed to process data from Cloud Object Storage using Serverless functions.
-    We will also demonstrate the Dataplug library that enables Cloud Optimized data managament of scientific settings such as genomics, metabolomics, or geospatial data. We will show different data processing pipelines
+    We will also demonstrate the Dataplug library that enables Cloud Optimized data management of scientific settings such as genomics, metabolomics, or geospatial data. We will show different data processing pipelines
     in the Cloud that demonstrate the benefits of cloud-optimized data management.

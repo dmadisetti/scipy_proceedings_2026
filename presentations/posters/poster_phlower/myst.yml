@@ -1,7 +1,7 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
-  title: "Phlower: A Deep Learning Framework Supporting PyTorch Tensors with Physical Dimensions"
+  title: 'Phlower: A Deep Learning Framework Supporting PyTorch Tensors with Physical Dimensions'
   authors:
     - name: Riku Sakamoto
       email: sakamoto@ricos.co.jp

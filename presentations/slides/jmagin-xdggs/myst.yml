@@ -27,6 +27,5 @@ project:
     projection-based data, which is either comprised of evenly shaped rectangular grid (aka raster) or discrete
     geometries (aka vector), and thus requires specialized tooling. In particular, this includes libraries that can work
     on the numeric cell ids defined by the specific DGGS.
-
     `xdggs` is a library that provides a unified interface for `xarray` that allows working with and visualizing a
     variety of DGGS-indexed data sets.

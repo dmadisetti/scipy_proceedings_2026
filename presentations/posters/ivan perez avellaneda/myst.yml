@@ -5,7 +5,6 @@ project:
   authors:
     - name: Ivan Perez Avellaneda
       orcid: 0000-0003-3127-8454
-      affiliation: 
   abstract: |
     In this paper, CFSpy a package in Python that numerically computes Chen-Fliess series
     is presented. The reachable sets of non-linear systems are also

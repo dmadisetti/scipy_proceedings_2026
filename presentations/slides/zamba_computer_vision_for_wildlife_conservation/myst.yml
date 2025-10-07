@@ -1,7 +1,7 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
-  title: "Zamba: Computer vision for wildlife conservation"
+  title: 'Zamba: Computer vision for wildlife conservation'
   authors:
     - name: Emily Dorne
       email: emily@drivendata.org

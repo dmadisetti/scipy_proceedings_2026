@@ -15,7 +15,7 @@ project:
     - name: Kathryn Huff
       orcid: 0000-0002-7075-6802
       affiliation: Dept. of Nuclear, Plasma, and Radiological Engineering, University of Illinois Urbana-Champaign
-  abstract: | 
+  abstract: |
     We have added functionality for running depletion simulations independently
     of neutron transport in OpenMC, an open source Monte Carlo particle
     transport code with an internal depletion module. Transport-independent
