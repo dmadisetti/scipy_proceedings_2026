@@ -26,6 +26,7 @@ project:
       id: amey
     - name: Ana Comesana
       affiliation: Lawrence Berkeley National Laboratory
+      id: ana
     - name: Charles Lindsey
       email: lindseycster@gmail.com
       affiliation: Aptos
@@ -36,6 +37,7 @@ project:
         - name: Curvenote
           ror: https://ror.org/02mz0e468
           url: https://curvenote.com
+      id: franklin
     - name: Hongsup Shin
       email: hongsup.shin@pm.me
       affiliation: Arm
@@ -53,3 +55,4 @@ project:
       id: sanhita
     - name: Sean Freeman
       affiliation: University of Alabama in Huntsville
+      id: sean

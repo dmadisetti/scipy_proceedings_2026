@@ -6,7 +6,7 @@ project:
     - name: Irina Demeshko
       orcid: 0009-0001-1035-7260
       affiliation: NVIDIA
-    - name: Scaling NumPy for Large-Scale Science: The cuPyNumeric Approach
+    - name: Quynh L. Nguyen
       orcid: 0000-0002-5897-8576
       affiliation: NVIDIA
   abstract: |
