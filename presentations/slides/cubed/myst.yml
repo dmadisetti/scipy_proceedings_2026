@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297867
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297867
   title: 'Cubed: Scalable array processing with bounded-memory in Python'
   authors:
     - name: Tom Nicholas

@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297963
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297963
   title: Imprecise uncertainty management with uncertain numbers to facilitate trustworthy computations
   authors:
     - name: Yu Chen

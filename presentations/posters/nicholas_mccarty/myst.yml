@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297956
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297956
   title: Performing Object Detection on Drone Orthomosaics with Meta's Segment Anything Model (SAM)
   authors:
     - name: Nicholas McCarty

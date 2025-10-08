@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297836
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297836
   title: 'Enhancing Curve Fitting with SciPy: Interactive Spline Modeling and Reproducibility with SplineCloud'
   authors:
     - name: Vadym Pasko

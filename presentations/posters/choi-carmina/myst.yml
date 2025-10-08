@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297937
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297937
   title: 'Carmina: Introducing Programming to Latin Poetry'
   authors:
     - name: Suh Young Choi

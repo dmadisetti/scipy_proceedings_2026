@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297897
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297897
   title: 'Taming the Wild West of ML: From Model to Trust'
   authors:
     - name: Mihai Maruseac

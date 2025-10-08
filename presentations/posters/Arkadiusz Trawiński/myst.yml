@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297923
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297923
   title: 'SymPy Tensor Module: A Bug Fix for High-Rank Metric Contractions'
   authors:
     - name: Arkadiusz P. Trawiński

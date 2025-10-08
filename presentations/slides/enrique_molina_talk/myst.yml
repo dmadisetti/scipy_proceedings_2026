@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297875
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297875
   title: 'Processing Cloud-optimized data in Python with Serverless Functions (Lithops, Dataplug)'
   authors:
     - name: Enrique Molina-Giménez

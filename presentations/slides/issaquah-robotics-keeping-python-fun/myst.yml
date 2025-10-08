@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297879
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297879
   title: 'Keeping Python Fun: Using Robotics Competitions to Teach Data Analysis and Application Development'
   authors:
     - name: Olivia Yang

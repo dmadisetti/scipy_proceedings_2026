@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297883
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297883
   title: Using Discrete Global Grid Systems in the Pangeo ecosystem
   authors:
     - name: Justus Magin

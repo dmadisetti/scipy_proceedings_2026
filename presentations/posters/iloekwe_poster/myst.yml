@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297946
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297946
   title: 'Weather Classification with CNNs: Successes, Surprises, and Sunrise Confusion'
   authors:
     - name: Jennifer Iloekwe

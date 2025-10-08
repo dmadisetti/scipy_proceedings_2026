@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297933
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297933
   title: I Upgraded My AI...Now It's Funnier Than Me! A Beginner's Guide to Prompt Engineering for Playfulness
   authors:
     - name: Jarai Carter

@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297859
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297859
   title: An Active Learning Plugin in napari to Fine-Tune Models for Large-scale Bioimage Analysis
   authors:
     - name: Fernando Cervantes

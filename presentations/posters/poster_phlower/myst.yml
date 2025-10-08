@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297960
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297960
   title: 'Phlower: A Deep Learning Framework Supporting PyTorch Tensors with Physical Dimensions'
   authors:
     - name: Riku Sakamoto

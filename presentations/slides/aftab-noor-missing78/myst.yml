@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297863
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297863
   title: 'Unlocking the Missing 78%: Inclusive Communities for the Future of Scientific Python'
   authors:
     - name: 'Noor Aftab'

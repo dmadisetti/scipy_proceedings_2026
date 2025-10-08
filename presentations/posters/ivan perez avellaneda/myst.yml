@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297948
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297948
   title: 'SciPy Optimize and Reachability of Nonlinear Systems '
   authors:
     - name: Ivan Perez Avellaneda

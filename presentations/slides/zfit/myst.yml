@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297909
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297909
   title: 'zfit: scalable pythonic likelihood fitting'
   authors:
     - name: Jonas Eschle

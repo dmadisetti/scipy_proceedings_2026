@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297939
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297939
   title: 'Serverless Data Processing with Lithops'
   authors:
     - name: Enrique Molina-Giménez

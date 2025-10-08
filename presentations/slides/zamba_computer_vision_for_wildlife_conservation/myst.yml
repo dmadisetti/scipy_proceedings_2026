@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297903
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297903
   title: 'Zamba: Computer vision for wildlife conservation'
   authors:
     - name: Emily Dorne

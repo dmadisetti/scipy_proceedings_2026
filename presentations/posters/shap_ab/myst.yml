@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297965
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297965
   title: 'Explaining ML predictions with SHAP'
   authors:
     - name: Avik Basu

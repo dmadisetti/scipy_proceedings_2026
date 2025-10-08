@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297925
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297925
   title: Wavefront-Based Visual Acuity Estimation Using Machine Learning
   authors:
     - name: Allen S. Harvey Jr.

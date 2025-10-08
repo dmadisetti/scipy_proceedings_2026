@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297877
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297877
   title: 'Accelerated DataFrames for all: Bringing GPU acceleration to pandas and Polars'
   authors:
     - name: Vyas Ramasubramani

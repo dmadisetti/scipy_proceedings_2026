@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17297855
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17297855
   title: 'GBNet: XGBoost and LightGBM PyTorch Modules'
   authors:
     - name: Michael Horrell
