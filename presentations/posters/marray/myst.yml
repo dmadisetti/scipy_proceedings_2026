@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.17352223
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17352223
   title: 'Missing data? MArray adds mask support to any array/tensor backend'
   authors:
     - name: Matt Haberland
