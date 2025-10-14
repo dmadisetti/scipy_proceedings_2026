@@ -1,6 +1,7 @@
 version: 1
 extends: ../papers.yml
 project:
+  doi: 10.25080/frwc3537
   id: scipy-2025-scipy_proceedings
   title: 'SciPy Proceedings: An Exemplar for Publishing Computational Open Science'
   description: Add a two sentence description about your article.

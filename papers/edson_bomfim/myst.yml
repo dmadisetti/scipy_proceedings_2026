@@ -1,6 +1,7 @@
 version: 1
 extends: ../papers.yml
 project:
+  doi: 10.25080/tyyd7356
   # Update this to match `scipy-2025-<folder>` the folder should be `<firstname_surname>`
   id: scipy-2025-edson_bomfim
   # Ensure your title is the same as in your `main.md`

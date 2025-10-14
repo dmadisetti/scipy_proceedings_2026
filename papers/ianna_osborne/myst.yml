@@ -1,6 +1,7 @@
 version: 1
 extends: ../papers.yml
 project:
+  doi: 10.25080/yunw5822
   id: scipy-2025-ianna_osborne
   title: Advancing High Energy Physics Data Analysis with Julia -- A Case for JuliaHEP
   description: The computational challenges in HEP require optimized solutions for 

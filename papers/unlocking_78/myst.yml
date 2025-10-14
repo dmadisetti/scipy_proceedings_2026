@@ -1,6 +1,7 @@
 version: 1
 extends: ../papers.yml
 project:
+  doi: 10.25080/ncmh8429
   id: scipy-2025-missing_78
   title: "Unlocking the Missing 78%: Inclusive Communities for the Future of Scientific Python"
   description: This article quantifies the gender gap in the scientific Python community, analyzes its root causes, and proposes the Visibility–Invitation–Mechanism (VIM) framework as a practical solution. A case study of the IBM Women in AI (WAI) User Group is presented to demonstrate the framework's effectiveness.

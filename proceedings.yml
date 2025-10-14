@@ -14,11 +14,10 @@ project:
     doi: 10.25080/issn.2575-9752
     url: https://proceedings.scipy.org
   date: 2025-07-10
-  # TODO: Add this at publication time:
-  # volume:
-  #   title: Proceedings of the 24th Python in Science Conference
-  #   subject: Scientific Computing with Python
-  #   doi: 10.25080/DTVR3553
+  volume:
+    title: Proceedings of the 24th Python in Science Conference
+    subject: Scientific Computing with Python
+    doi: 10.25080/hptk5424
   editors:
     - name: Amey Ambade
       email: ameyambade@gmail.com

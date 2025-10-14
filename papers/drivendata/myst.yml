@@ -1,6 +1,7 @@
 version: 1
 extends: ../papers.yml
 project:
+  doi: 10.25080/crcw9835
   id: scipy-2025-drivendata
   # Ensure your title is the same as in your `main.md`
   title: "Zamba: Computer vision for wildlife conservation"

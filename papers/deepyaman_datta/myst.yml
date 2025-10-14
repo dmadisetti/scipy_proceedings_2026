@@ -1,6 +1,7 @@
 version: 1
 extends: ../papers.yml
 project:
+  doi: 10.25080/wjjm7869
   id: scipy-2025-deepyaman_datta
   title: "Python is all you need: an overview of the composable, Python-native data stack"
   description: >
