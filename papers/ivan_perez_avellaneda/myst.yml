@@ -2,12 +2,12 @@ version: 1
 extends: ../papers.yml
 project:
   # Update this to match `scipy-2025-<folder>` the folder should be `<firstname_surname>`
-  id: scipy-2025-myst_template
+  id: scipy-2025-ivan_perez_avellaneda
   # Ensure your title is the same as in your `main.md`
   #title: 'Paper: SciPy Optimize and Reachability of Nonlinear Systems'
-  title:'CFSpy: A Python Library for the Computation of Chen-Fliess Series'
+  title: 'CFSpy: A Python Library for the Computation of Chen-Fliess Series'
   # subtitle:
-  description: the CFSpy Python package is presented to compute reachable sets of nonlinear control-affine systems. The optimization part is done using SciPy Optimize.
+  description: The CFSpy Python package is presented to compute reachable sets of nonlinear control-affine systems. The optimization part is done using SciPy Optimize.
   # Authors should have affiliations, emails and ORCIDs if available
   authors:
     - name: Ivan Perez Avellaneda
@@ -15,20 +15,20 @@ project:
       orcid: 0000-0003-3127-8454
       affiliations:
         - Monaghan Medical Corp.
-#        - Egyptian Embassy, S.P.Q.R.
-#    - name: Mark Anthony
-#      email: mark37@rome.it
-#      affiliations:
-#        - Egyptian Embassy, S.P.Q.R.
-#    - name: Jarrod Millman
-#      email: millman@rome.it
-#      affiliations:
-#        - Egyptian Embassy, S.P.Q.R.
-#        - Yet another place, S.P.Q.R.
-#      corresponding: true
-#    - name: Cleopatra
-#      email: cleopatra@rome.it
-#      affiliation: Ptolemaic Kingdom
+  #        - Egyptian Embassy, S.P.Q.R.
+  #    - name: Mark Anthony
+  #      email: mark37@rome.it
+  #      affiliations:
+  #        - Egyptian Embassy, S.P.Q.R.
+  #    - name: Jarrod Millman
+  #      email: millman@rome.it
+  #      affiliations:
+  #        - Egyptian Embassy, S.P.Q.R.
+  #        - Yet another place, S.P.Q.R.
+  #      corresponding: true
+  #    - name: Cleopatra
+  #      email: cleopatra@rome.it
+  #      affiliation: Ptolemaic Kingdom
   keywords:
     - Chen-Fliess series
     - Nonlinear Control Systems

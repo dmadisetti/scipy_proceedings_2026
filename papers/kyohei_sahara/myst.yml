@@ -2,9 +2,9 @@ version: 1
 extends: ../papers.yml
 project:
   # Update this to match `scipy-2025-<folder>` the folder should be `<firstname_surname>`
-  id: scipy-2025-kyohei_sahara
+  id: scipy-2025-kyohei_sahara-2
   # Ensure your title is the same as in your `main.md`
-  title: "Quantum Chemistry Acceleration: Comparative Performance Analysis of Modern DFT Implementations"
+  title: 'Quantum Chemistry Acceleration: Comparative Performance Analysis of Modern DFT Implementations'
   # subtitle:
   description: |
     This paper examines the acceleration of quantum chemistry calculations through

@@ -7,3 +7,6 @@ _build
 *~
 node_modules
 *.bak
+
+meca.zip
+full_text.pdf
