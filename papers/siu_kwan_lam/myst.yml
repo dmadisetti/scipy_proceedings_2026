@@ -1,0 +1,57 @@
+version: 1
+extends: ../papers.yml
+project:
+  # Update this to match `scipy-2025-<folder>` the folder should be `<firstname_surname>`
+  id: scipy-2025-siu_kwan_lam
+  # Ensure your title is the same as in your `main.md`
+  title: "Numba v2: Towards a SuperOptimizing Python Compiler"
+  # subtitle:
+  description: Add a two sentence description about your article.
+  # Authors should have affiliations, emails and ORCIDs if available
+  authors:
+    - name: Siu Kwan Lam
+      email: siu@anaconda.com
+      orcid: 0000-0002-5220-3307
+      affiliations:
+        - Anaconda, Inc.
+    - name: Stuart Archibald
+      email: sarchibald@anaconda.com
+      affiliations:
+        - Anaconda, Inc.
+    - name: Stan Seibert
+      email: sseibert@anaconda.com
+      affiliations:
+        - Anaconda, Inc.
+  keywords:
+    - python
+    - compiler
+    - equality saturation
+    - e-graph
+    - MLIR
+  # Add the abbreviations that you use in your paper here
+  abbreviations:
+    MyST: Markedly Structured Text
+    JIT: Just-in-time
+  # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
+  error_rules:
+    - rule: doi-exists
+      severity: ignore
+      keys:
+        - Atr03
+        - terradesert
+        - jupyter
+        - sklearn1
+        - sklearn2
+        - Nelson1980
+        - lawrence2007
+        - bellman1958
+        - llama3.np 
+        # stepp2011 is supposed to be https://dl.acm.org/doi/abs/10.5555/2395310
+        # but the doi check failed
+        - stepp2011 
+  exports:
+    - id: pdf
+      format: typst
+      template: https://github.com/curvenote-templates/scipy.git
+      article: main.md
+      output: full_text.pdf
