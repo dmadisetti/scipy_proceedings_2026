@@ -1,7 +1,10 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
-  title: "Quantum Chemistry Acceleration: Comparative Performance Analysis of Modern DFT Implementations"
+  doi: 10.5281/zenodo.17353419
+  identifiers:
+    zenodo: https://zenodo.org/deposit/17353419
+  title: 'Quantum Chemistry Acceleration: Comparative Performance Analysis of Modern DFT Implementations'
   authors:
     - name: Kyohei Sahara
       affiliation: Kyoto University
