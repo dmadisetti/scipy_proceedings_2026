@@ -5,7 +5,7 @@ project:
   # Update this to match `scipy-2025-<folder>` the folder should be `<firstname_surname>`
   id: scipy-2025-siu_kwan_lam
   # Ensure your title is the same as in your `main.md`
-  title: "Numba v2: Towards a SuperOptimizing Python Compiler"
+  title: 'Numba v2: Towards a SuperOptimizing Python Compiler'
   # subtitle:
   description: Add a two sentence description about your article.
   # Authors should have affiliations, emails and ORCIDs if available
@@ -29,10 +29,22 @@ project:
     - equality saturation
     - e-graph
     - MLIR
+  thumbnail: egraph_scaling_matmul.png
   # Add the abbreviations that you use in your paper here
   abbreviations:
     MyST: Markedly Structured Text
     JIT: Just-in-time
+    EqSat: equality saturation
+    DMA: direct memory access
+    LLM: large-language model
+    IR: intermediate representation
+    RVSDG: regionalized value-state dependence graph
+    CFG: control flow graph
+    PEG: program expression graph
+    DAG: directed acyclic graph
+    GELU: Gaussian Error Linear Unit
+    DNN: deep neural network
+    SSA: static single assignment
   # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
   error_rules:
     - rule: doi-exists
@@ -46,10 +58,10 @@ project:
         - Nelson1980
         - lawrence2007
         - bellman1958
-        - llama3.np 
+        - llama3.np
         # stepp2011 is supposed to be https://dl.acm.org/doi/abs/10.5555/2395310
         # but the doi check failed
-        - stepp2011 
+        - stepp2011
   exports:
     - id: pdf
       format: typst
