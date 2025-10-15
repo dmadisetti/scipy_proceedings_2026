@@ -1,6 +1,7 @@
 ---
 # Ensure that this title is the same as the one in `myst.yml`
 title: A Lightweight Pipeline for Rewards-Guided Synthetic Text Generation Using NeMo and RAPIDS
+short_title: A Lightweight Pipeline for Rewards-Guided Synthetic Text Generation
 abstract: |
    Synthetic Data Generation (SDG) plays an increasingly important role in modern machine learning workflows. Although progress has been made in structured data—tabular data with fixed schemas—especially with tools like Synthetic Data Vault (SDV) and Conditional Tabular Generative Adversarial Network (CTGAN), the generation of high-quality synthetic text remains a challenging and underdeveloped area. Many existing SDG pipelines lack mechanisms for semantic control, offer limited quality assurance, and are not designed with computational efficiency in mind.
 
@@ -376,7 +377,10 @@ An initial baseline was established by cleaning and deduplicating the original d
 
 The pipeline was configured to run for 10 rounds, each involving the generation of synthetic samples sampled at a rate of 0.1% from the current dataset, with a number of variants of 2. A reward threshold of 0 was applied to filter outputs based on quality, using normalized scalar reward scores to retain only fluent, relevant, and contextually appropriate text.
 
-As shown in the table, each round resulted in a modest increase in the dataset size before deduplication. For example, after round 1, the dataset increased from 12,244 to 12,251 records. This pattern continued across all 10 iterations, with post-generation counts ranging from 12,251 to 12,321. After each merge, semantic deduplication was applied, bringing the dataset size down, confirming that only non-redundant and unique samples were retained.
+As shown in @tbl, each round resulted in a modest increase in the dataset size before deduplication. For example, after round 1, the dataset increased from 12,244 to 12,251 records. This pattern continued across all 10 iterations, with post-generation counts ranging from 12,251 to 12,321. After each merge, semantic deduplication was applied, bringing the dataset size down, confirming that only non-redundant and unique samples were retained.
+
+```{table} Dataset size across 10 rounds
+:label: tbl
 
 | Round    | Original Records (Pre-Dedup) | Records After Dedup |
 |:--------:|:----------------------------:|:-------------------:|
@@ -391,29 +395,28 @@ As shown in the table, each round resulted in a modest increase in the dataset s
 | 8        |        12,310                |      12,309         |
 | 9        |        12,313                |      12,311         |
 | 10       |        12,321                |      12,317         |
-
+```
 
 This process illustrates the effectiveness of the deduplication step. Across all 10 rounds, redundant content introduced during generation was
 systematically identified and removed. Despite generating over 400 synthetic candidates in accumulation, the dataset size only increased slightly, reflecting strict enforcement of semantic quality constraints. 
 
 ### Visual Outputs
 
-Raw vs Curated. Figure 2 (raw dataset, N=19,474) and Figure 3 (curated dataset, N=77) compare the distribution of the normalized reward score before and after curation. The raw set shows a broad, roughly unimodal spread from ≈−0.8 to 0.8 with a mode slightly right of zero and a positive tail to ~0.7–0.8, reflecting high variability in quality. By contrast, the curated set eliminates negatives and concentrates mass in 0.0–0.5 (peaking ~0.10–0.25) with reduced variance—a clear rightward shift.
+Raw vs Curated. @fig:raw (raw dataset, N=19,474) and @fig:curated (curated dataset, N=77) compare the distribution of the normalized reward score before and after curation. The raw set shows a broad, roughly unimodal spread from ≈−0.8 to 0.8 with a mode slightly right of zero and a positive tail to ~0.7–0.8, reflecting high variability in quality. By contrast, the curated set eliminates negatives and concentrates mass in 0.0–0.5 (peaking ~0.10–0.25) with reduced variance—a clear rightward shift.
 
 These visualizations support the filtering logic: clustering and semantic deduplication remove repeated phrasing, and reward-based selection favors higher-coherence, factually correct content. In short, the procedure is content-selective rather than merely size-reducing, retaining the most valuable and accurate samples for downstream use.
 
-In the raw dataset (Figure 2), the normalized reward score is broadly distributed (≈−0.8 to +0.8) with a single mode slightly right of zero. Density peaks near 0.1 and stays substantial through ~0.3–0.4; negatives are thinner, while the positive tail extends farther (to ~0.7–0.8). Overall, the raw set skews mildly positive, with many mid-quality samples and few extreme outliers.
+In the raw dataset (@fig:raw), the normalized reward score is broadly distributed (≈−0.8 to +0.8) with a single mode slightly right of zero. Density peaks near 0.1 and stays substantial through ~0.3–0.4; negatives are thinner, while the positive tail extends farther (to ~0.7–0.8). Overall, the raw set skews mildly positive, with many mid-quality samples and few extreme outliers.
 
 :::{figure} Figure2.png
 :label: fig:raw
 Normalized Reward Score Distribution of Raw Data
 :::
 
-In the curated dataset (Figure 3), the distribution concentrates at higher scores (≈0.0–0.5), eliminating negatives and tightening the spread. Density peaks around 0.10–0.25, then declines with a thin right tail to ~0.5; relative to the raw set, it’s right-shifted and less variable, indicating curation favored higher-reward examples.
+In the curated dataset (@fig:curated), the distribution concentrates at higher scores (≈0.0–0.5), eliminating negatives and tightening the spread. Density peaks around 0.10–0.25, then declines with a thin right tail to ~0.5; relative to the raw set, it’s right-shifted and less variable, indicating curation favored higher-reward examples.
 
 :::{figure} Figure3.png
 :label: fig:curated
-:scale: 75%
 Normalized Reward Score Distribution of Curated Data
 :::
 
