@@ -41,6 +41,12 @@ project:
   # Add the abbreviations that you use in your paper here
   abbreviations:
     CUDA: Compute Unified Device Architecture
+    AI: artificial intelligence
+    ML: machine learning
+    CI: continuous integration
+    CD: continuous delivery
+    GPU: graphics processing unit
+    SDK: software development kit
   # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
   error_rules:
     - rule: doi-exists
