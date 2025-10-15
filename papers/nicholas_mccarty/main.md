@@ -1,6 +1,7 @@
 ---
 # Ensure that this title is the same as the one in `myst.yml`
 title: Performing Object Detection on Drone Orthomosaics with Meta's Segment Anything Model (SAM)
+short_title: Performing Object Detection on Drone Orthomosaics
 abstract: |
   Accurate and efficient object detection and spatial localization in remote sensing imagery is a persistent challenge. In the context of precision agriculture, the extensive data annotation required by conventional deep learning models poses additional challenges. This paper presents a fully open source workflow leveraging Meta AI's Segment Anything Model (SAM) for zero-shot segmentation, enabling scalable object detection and spatial localization in high-resolution drone orthomosaics without the need for annotated image datasets. Model training and/or fine-tuning is rendered unnecessary in our precision agriculture-focused use case. The presented end-to-end workflow takes high-resolution images and quality control (QC) check points as inputs, automatically generates masks corresponding to the objects of interest (empty plant pots, in our given context), and outputs their spatial locations in real-world coordinates. Detection accuracy (required in the given context to be within 3 cm) is then quantitatively evaluated using the ground truth QC check points and benchmarked against object detection output generated using commercially available software. Results demonstrate that the open source workflow achieves superior spatial accuracy — producing output `20% more spatially accurate`, with `400% greater IoU` — while providing a scalable way to perform spatial localization on high-resolution aerial imagery (with ground sampling distance, or GSD, < 30 cm).
 ---
@@ -93,22 +94,22 @@ This approach is carried out entirely using open source Python libraries, ensuri
 
 ```{math}
 \begin{array}{ll}
-\textbf{a.} & \text{Load GeoTIFF file(s)} \\
+\bf{a.} & \text{Load GeoTIFF file(s)} \\
 \quad & \text{Extract image bounds: } (\text{min}_x, \text{min}_y, \text{max}_x, \text{max}_y) \\
 \quad & \text{Extract coordinate reference system (CRS)} \\
 \\
-\textbf{b.} & \text{Load QC point CSV} \\
+\bf{b.} & \text{Load QC point CSV} \\
 \quad & \text{Clean and standardize column names} \\
 \quad & \text{Assign unique IDs to each QC point} \\
 \quad & \text{Reproject QC points to match image CRS (if needed)} \\
 \\
-\textbf{c.} & \text{For each QC point:} \\
-\quad & \textbf{if} \text{ point within image bounds} \textbf{ then} \\
+\bf{c.} & \text{For each QC point:} \\
+\quad & \bf{if} \text{point within image bounds } \bf{ then} \\
 \quad\quad & \text{Keep point} \\
-\quad & \textbf{else} \\
+\quad & \bf{else} \\
 \quad\quad & \text{Discard point} \\
 \\
-\textbf{d.} & \text{Save filtered QC points to output CSV}
+\bf{d.} & \text{Save filtered QC points to output CSV}
 \end{array}
 ```
 
@@ -117,15 +118,15 @@ This approach is carried out entirely using open source Python libraries, ensuri
 
 ```{math}
 \begin{array}{ll}
-\textbf{a.} & \text{Initialize SAM (ViT-H checkpoint)} \\
+\bf{a.} & \text{Initialize SAM (ViT-H checkpoint)} \\
 \quad & \text{Use GPU if available} \\
 \\
-\textbf{b.} & \text{Tile ("chip") input images} \\
+\bf{b.} & \text{Tile ("chip") input images} \\
 \quad & \text{Iteratively generate masks using SAM} \\
 \\
-\textbf{c.} & \text{Filter masks with confidence } \geq 80\% \\
+\bf{c.} & \text{Filter masks with confidence } \geq 80\% \\
 \\
-\textbf{d.} & \text{Convert masks to polygons} \\
+\bf{d.} & \text{Convert masks to polygons} \\
 \quad & \text{Aggregate results and export as GeoJSON}
 \end{array}
 ```
@@ -135,12 +136,12 @@ This approach is carried out entirely using open source Python libraries, ensuri
 
 ```{math}
 \begin{array}{ll}
-\textbf{a.} & \text{Filter polygons (e.g., based on area threshold)} \\
+\bf{a.} & \text{Filter polygons (e.g., based on area threshold)} \\
 \\
-\textbf{b.} & \text{Merge overlapping polygons} \\
+\bf{b.} & \text{Merge overlapping polygons} \\
 \quad & \text{Extract individual (non-overlapping) polygons} \\
 \\
-\textbf{c.} & \text{Extract centroids from polygons} \\
+\bf{c.} & \text{Extract centroids from polygons} \\
 \end{array}
 ```
 
@@ -149,9 +150,9 @@ This approach is carried out entirely using open source Python libraries, ensuri
 
 ```{math}
 \begin{array}{ll}
-\textbf{a.} & \text{Load merged geometry and filtered QC points} \\
+\bf{a.} & \text{Load merged geometry and filtered QC points} \\
 \\
-\textbf{b.} & \text{Iteratively compute geometric deviation from QC points} \\
+\bf{b.} & \text{Iteratively compute geometric deviation from QC points} \\
 \quad & \text{Output deviations in centimeters}
 \end{array}
 ```
@@ -163,9 +164,9 @@ See [Appendix](#accuracy-evaluation-methodology) for accuracy evaluation methodo
 
 ```{math}
 \begin{array}{ll}
-\textbf{a.} & \text{Apply accuracy evaluation steps to proprietary software output} \\
+\bf{a.} & \text{Apply accuracy evaluation steps to proprietary software output} \\
 \\
-\textbf{b.} & \text{Compare workflows using IoU, precision, recall, and F1 scores}
+\bf{b.} & \text{Compare workflows using IoU, precision, recall, and F1 scores}
 \end{array}
 ```
 

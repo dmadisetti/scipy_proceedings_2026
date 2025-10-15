@@ -25,6 +25,15 @@ project:
   # Add the abbreviations that you use in your paper here
   abbreviations:
     MyST: Markedly Structured Text
+    SAM: Segment Anything Model
+    IoU: Intersection-over-Union
+    QC: quality control
+    GSD: ground sampling distance
+    CRS: coordinate reference system
+    FN: false negatives
+    FP: false positives
+    TP: true positives
+    TN: true negatives
   # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
   error_rules:
     - rule: doi-exists
