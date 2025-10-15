@@ -1,5 +1,6 @@
 ---
 title: An Active Learning Plugin in napari to Fine-Tune Models for Large-scale Bioimage Analysis
+short_title: An Active Learning Plugin in napari to Fine-Tune Models
 abstract: |
   The “napari-activelearning” plugin provides a framework to fine-tune deep learning models for large-scale bioimage analysis, such as digital pathology Whole Slide Images.
   The development of this plugin was motivated by easing the integration of deep learning tools into bioimage analysis workflows.
@@ -10,34 +11,34 @@ abstract: |
 ## Introduction
 
 Adoption of deep learning methods for bioimage analysis has grown exponentially in recent years.
-Part of such success is thanks to transfer learning that enables using models that were trained on large volumes of data from diverse domains, such as the ImageNet[@imagenet] and Segment Anything 1 Billion (SA-1B)[@kirillov2023segment] datasets, into tasks where annotated data is scarce.
+Part of such success is thanks to transfer learning that enables using models that were trained on large volumes of data from diverse domains, such as the ImageNet [@imagenet] and Segment Anything 1 Billion (SA-1B) [@kirillov2023segment] datasets, into tasks where annotated data is scarce.
 An example is cell segmentation in biological microscopy images [@Greenwald2021-hj], which requires human annotation of cell structures in images of different modalities and scales.
 Such images can be up to tens or hundreds of thousands of pixels per side (e.g. WSI used in histopathology), depending on the acquisition magnification and imaging modality.
 Moreover, the research community has made considerable efforts during the last years to curate databases for training models relevant to the bioimage analysis field.
-These databases include LIVECell[@Edlund2021-bi], TissueNet[@Greenwald2021-hj], and CellSeg[@Lee2022-ln], among many others.
+These databases include LIVECell [@Edlund2021-bi], TissueNet [@Greenwald2021-hj], and CellSeg [@Lee2022-ln], among many others.
 Such databases can be used for de-novo training or be used for fine-tuning models that were trained with image datasets from general domains.
 
 ### Related work
 Segmentation of structures in biological image data is a recurrent task in bioimage analysis that serves as an intermediate step for downstream applications.
 Some of the most common downstream applications for cell segmentation involve cell type classification, counting specific types of cells, and measuring morphological properties of cells in an image.
 These applications require high quality cell segmentations to obtain accurate information that is used in further bioimage understanding and research.
-The most relevant deep learning segmentation methods include Cellpose[@Stringer2021-od], Stardist[@weigert2022], and Micro-SAM[@Archit2025-wa].
+The most relevant deep learning segmentation methods include Cellpose [@Stringer2021-od], Stardist [@weigert2022], and Micro-SAM [@Archit2025-wa].
 These methods offer pre-trained models for carrying out segmentation of biological structures in multiple imaging modalities, and tools for fine-tuning those same models to new data with user-defined annotations.
 Training deep learning models for bioimage analysis involves: 1) extracting several rectangular sections of a specified size (i.e. image tiles) from the original image files, 2) annotating each of those tiles according to the tasks being learned, and 3) storing the pairs of tiles and annotations in separate containers or folders as training and testing datasets.
 However, this approach involves some technical difficulties such as the costs and time associated with transferring training data between researchers for sharing and reproducibility purposes, costs for storing duplicated data from the image tiles already present in the original images, and lack of context and coordinates from where each tile was originally extracted. 
 
 The field of Active Learning studies human-in-the-loop strategies in deep learning that can reduce the time and effort required for de-novo training or fine-tuning models.
-Applications of active learning have also been developed to address computer vision tasks[@Gal2017DeepBA].
-This is relevant to biological image analysis where data annotation is one of the most time-consuming tasks[@BUDD2021102062].
+Applications of active learning have also been developed to address computer vision tasks [@Gal2017DeepBA].
+This is relevant to biological image analysis where data annotation is one of the most time-consuming tasks [@BUDD2021102062].
 The main reason is that due the scale of the images in some modalities (e.g. WSI), the number of samples that can be extracted for labeling can overwhelm the annotator.
 On the other hand, for relatively smaller images acquired through other modalities, the annotator would require to annotate large amounts of samples to generate sufficient training data.
 An active learning sampling strategy, based on acquisition functions, can be used to prevent this by presenting a limited number of samples at a time.
-Moreover, there are acquisition functions such as BALD[@Houlsby2011BayesianAL] that focus on obtaining only cases that could improve a model’s performance when correctly labeled.
+Moreover, there are acquisition functions such as BALD [@Houlsby2011BayesianAL] that focus on obtaining only cases that could improve a model’s performance when correctly labeled.
 
 The bioimage analysis community has been steering towards efficient creation and sharing of repositories containing large volumes of data.
-NGFFs[@Moore2021-we] are one of the most preferred options for large-scale image storage and management, such as the OME-Zarr data format[@Moore2023-nq].
-The Zarr data format establishes a standard structure for compressed, chunked-based, n-dimensional data storage that can be efficiently stored either in local or cloud repositories[@Moore2021-we,@Moore2023-nq].
-Multiple projects have been created on top of Zarr, including APIs such as the zarr-python library[@zarrpython]. Some image processing softwares have adopted this data format, like Fiji[@Fiji] with the MobIE plugin[@MoBIE], and QuPath[@QuPath] with its own Zarr data loader. Visualization tools such as napari[@napari], neuroglancer[@neuroglancer], viv[@viv], and webKnossos[@webKnossos] have also added support to this data format.
+NGFFs [@Moore2021-we] are one of the most preferred options for large-scale image storage and management, such as the OME-Zarr data format [@Moore2023-nq].
+The Zarr data format establishes a standard structure for compressed, chunked-based, n-dimensional data storage that can be efficiently stored either in local or cloud repositories [@Moore2021-we,@Moore2023-nq].
+Multiple projects have been created on top of Zarr, including APIs such as the zarr-python library [@zarrpython]. Some image processing softwares have adopted this data format, like Fiji [@Fiji] with the MobIE plugin [@MoBIE], and QuPath [@QuPath] with its own Zarr data loader. Visualization tools such as napari [@napari], neuroglancer [@neuroglancer], viv [@viv], and webKnossos [@webKnossos] have also added support to this data format.
 Additionally, image data stored as Zarr can be used for training deep learning models without duplicating data.
 That can be achieved by accessing chunked image data instead of extracting image tiles and storing them separately as is commonly needed in standard deep learning training.
 
@@ -50,25 +51,25 @@ The “napari-activelearning” plugin relies on three components to provide a u
 
 ### NGFFs
 
-NGFFs [@Moore2021-we], such as OME-Zarr[@Moore2023-nq], have been increasingly adopted by the bioimage analysis community thanks to its computation and storage advantages. Zarr format stores large-scale image data as independent n-dimensional tiles, also called chunks, either on local disk or cloud storage. By using chunks as units of storage, the amount of data required to be loaded into memory when accessing specific regions of the image is reduced. Accessing image chunks is parallel-safe, which enables acceleration of image processing through parallel computing. This is useful when applying a model for inference in larger-than-memory image data, where deep learning inference can be applied to regions of the image separately, and applying a subsequent reduction operation on the results. This reduction operation could be an accumulation function for whole image classification, or a stitching algorithm for segmentation tasks.
+NGFFs [@Moore2021-we], such as OME-Zarr [@Moore2023-nq], have been increasingly adopted by the bioimage analysis community thanks to its computation and storage advantages. Zarr format stores large-scale image data as independent n-dimensional tiles, also called chunks, either on local disk or cloud storage. By using chunks as units of storage, the amount of data required to be loaded into memory when accessing specific regions of the image is reduced. Accessing image chunks is parallel-safe, which enables acceleration of image processing through parallel computing. This is useful when applying a model for inference in larger-than-memory image data, where deep learning inference can be applied to regions of the image separately, and applying a subsequent reduction operation on the results. This reduction operation could be an accumulation function for whole image classification, or a stitching algorithm for segmentation tasks.
 
 ### napari Visualization Tool
 
-napari[@napari] is a user-friendly n-dimensional data viewer with extensible capabilities via plugins. This visualizer already offers tools for data annotation, and it is compatible with Zarr, enabling visualization of large-scale image data efficiently. napari has been used to develop deep learning applications for bioimaging analysis such as napari-cellpose[@Stringer2021-od], and Micro-SAM[@Archit2025-wa] plugins. These plugins can be used to segment biological structures in data acquired with multiple imaging modalities. However, these plugins are intended to be used with tiles of images that have already been extracted and stored, in contrast to the plugin presented in this work, which can be applied on regions defined by the user directly on original images without storing duplicate data from image tiles.
+napari [@napari] is a user-friendly n-dimensional data viewer with extensible capabilities via plugins. This visualizer already offers tools for data annotation, and it is compatible with Zarr, enabling visualization of large-scale image data efficiently. napari has been used to develop deep learning applications for bioimaging analysis such as napari-cellpose [@Stringer2021-od], and Micro-SAM [@Archit2025-wa] plugins. These plugins can be used to segment biological structures in data acquired with multiple imaging modalities. However, these plugins are intended to be used with tiles of images that have already been extracted and stored, in contrast to the plugin presented in this work, which can be applied on regions defined by the user directly on original images without storing duplicate data from image tiles.
 
 ### Active Learning framework
 
 To reduce the amount of data presented to the user for annotation, concepts from the Active Learning framework are implemented in this plugin. This field studies methods for human-in-the-loop learning workflows that avoid overwhelming the annotator with samples to labeling for training. This is achieved through a computation of Acquisition Functions that determine what samples require labeling to subsequently improve the performance of a specific model.
 
-Some of the most used acquisition functions involve Random acquisition, which takes a random unlabeled sample from the dataset with an uniform distribution; Maximize mean standard deviation, that computes the average standard deviation of the probabilities of each class predicted by the model; Maximize variation ratios, which uses the probability of the predicted class of each sample; Maximize the predictive entropy, that is computed from the predicted probabilities for each sample; and Maximize the mutual information between the model parameters and the predicted classes, which is also known as BALD[@Houlsby2011BayesianAL].
-In this plugin, the BALD[@Houlsby2011BayesianAL] acquisition function is implemented to score and sort a set of image patches sampled from an image.
+Some of the most used acquisition functions involve Random acquisition, which takes a random unlabeled sample from the dataset with an uniform distribution; Maximize mean standard deviation, that computes the average standard deviation of the probabilities of each class predicted by the model; Maximize variation ratios, which uses the probability of the predicted class of each sample; Maximize the predictive entropy, that is computed from the predicted probabilities for each sample; and Maximize the mutual information between the model parameters and the predicted classes, which is also known as BALD [@Houlsby2011BayesianAL].
+In this plugin, the BALD [@Houlsby2011BayesianAL] acquisition function is implemented to score and sort a set of image patches sampled from an image.
 This acquisition function was selected because it was demonstrated that can be used efficiently with bioimage data for deep learning training when compared with other functions such as Random acquisition [@Gal2017DeepBA].
 Such efficiency on selecting the most promising samples is highly desirable for increasing the amount of samples presented to the annotator that could improve the model's performance while reducing redundant samples.
-In this plugin, the score assigned to a sample extracted at random from the input image is computed following Houlsby et al.[@Houlsby2011BayesianAL]:
+In this plugin, the score assigned to a sample extracted at random from the input image is computed following @Houlsby2011BayesianAL:
 ```{math}
 a(x, M) = \mathbb{I}[y, \theta| x, D] ,
 ```
-where $a(x, M)$ is the acquisition function score for sample $x$ for model $M$, the mutual information $\mathbb{I}$ is computed from the prediction $y$ made by model $M$ for sample $x$ in the dataset $D$ with the current state of parameters $\theta$. Following Gal et al.[@Gal2017DeepBA], the mutual information can be computed through Monte Carlo integration to compute the BALD function as follows:
+where $a(x, M)$ is the acquisition function score for sample $x$ for model $M$, the mutual information $\mathbb{I}$ is computed from the prediction $y$ made by model $M$ for sample $x$ in the dataset $D$ with the current state of parameters $\theta$. Following @Gal2017DeepBA, the mutual information can be computed through Monte Carlo integration to compute the BALD function as follows:
 ```{math}
 \mathbb{I}[y, \theta| x, D] = -\sum_{c}\left(\frac{1}{T} \sum_{t} \hat{p_c}^t\right) log \left(\frac{1}{T}\sum_{t}\hat{p_c}^t\right) + \frac{1}{T}\sum_{c,t}\hat{p_c}^t log~\hat{p_c}^t ,
 ```
@@ -107,9 +108,9 @@ This widget is composed of four main components: a) a set of buttons to create a
 
 #### Acquisition Function Manager
 
-In this component, the model used for active learning can be selected from a list of registered models, and their hyper-parameters can be configured according to the user’s needs. This component uses NumPy[@numpy] and PyTorch[@pytorch] libraries to implement the BALD[@Houlsby2011BayesianAL] acquisition function and the Dropout operation insertion[@Gal2015DropoutAA]. The outputs generated in the intermediate steps of the active learning framework are transformed using the Sci-kit Image library[@scikit-image] and stored using the OME-Zarr[@Moore2023-nq] specification to make them shareable and reproducible under FAIR[@Wilkinson2016-bv] guidelines.
+In this component, the model used for active learning can be selected from a list of registered models, and their hyper-parameters can be configured according to the user’s needs. This component uses NumPy [@numpy] and PyTorch [@pytorch] libraries to implement the BALD [@Houlsby2011BayesianAL] acquisition function and the Dropout operation insertion [@Gal2015DropoutAA]. The outputs generated in the intermediate steps of the active learning framework are transformed using the Sci-kit Image library [@scikit-image] and stored using the OME-Zarr [@Moore2023-nq] specification to make them shareable and reproducible under FAIR [@Wilkinson2016-bv] guidelines.
 This component computes the acquisition function score for a set of image patches sampled from the input image defined in the Image Groups Manager component. The number of samples extracted and the total steps for the Monte Carlo integration process can be defined by the user in this widget, as shown in @fig:acquisition_mgr. For each sampled patch, the inference and acquisition function are computed and presented to the user in a descending list on the Labels Manager widget.
-The “napari-activelearning” uses Cellpose[@Stringer2021-od] as default deep learning framework for inference and fine-tuning with its pre-trained models. Moreover, the code that implements this component is intended for its extension to other deep learning models with PyTorch backend[@pytorch]. This can be achieved through the inheritance of a segmentation method class (`TunableMethod`) that is used to execute pure inference, probability computations, and even fine-tuning of model weights.
+The “napari-activelearning” uses Cellpose [@Stringer2021-od] as default deep learning framework for inference and fine-tuning with its pre-trained models. Moreover, the code that implements this component is intended for its extension to other deep learning models with PyTorch backend [@pytorch]. This can be achieved through the inheritance of a segmentation method class (`TunableMethod`) that is used to execute pure inference, probability computations, and even fine-tuning of model weights.
 As an example, the integration of Cellpose models into the napari-activelearning plugin is illustrated in @fig:tunable_method.
 The hyper-parameters that appear at the right in @fig:acquisition_mgr d) had been defined in the fine-tuning function (@fig:tunable_method c) when integrating the Cellpose model into this plugin.
 
@@ -122,7 +123,7 @@ The acquisition function manager widget is composed of six main components that 
 :::{figure} Model_inheritance.svg
 :label: fig:tunable_method
 Visual representation of the integration of Cellpose models as tunable methods in the napari-activelearning plugin through inheritance of the `TunableMethod` class.
-The derived class (`CellposeModel`) is required to implement: a) the `_run_pred` function that predicts the probability of each instance being assigned to the distinct domain classes; in the case of Cellpose that is the probability of each individual pixel being assigned to the foreground or background class, b) the `_run_eval` function that executes the normal evaluation process of the Cellpose model, and c) the `_fine_tune` function that wraps the existing fine-tuning process implemented in the Cellpose Python package[@Stringer2021-od].
+The derived class (`CellposeModel`) is required to implement: a) the `_run_pred` function that predicts the probability of each instance being assigned to the distinct domain classes; in the case of Cellpose that is the probability of each individual pixel being assigned to the foreground or background class, b) the `_run_eval` function that executes the normal evaluation process of the Cellpose model, and c) the `_fine_tune` function that wraps the existing fine-tuning process implemented in the Cellpose Python package [@Stringer2021-od].
 :::
 
 #### Labels Manager
