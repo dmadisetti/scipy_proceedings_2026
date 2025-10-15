@@ -17,7 +17,7 @@ project:
     - chris
     - angus
     - julia
-    - franklin
+    - fwkoch
     - jim
     - matt
     - mike
@@ -128,7 +128,7 @@ project:
         - ncar
       roles:
         - Writing – review & editing
-    - id: franklin
+    - id: fwkoch
       name: Franklin Koch
       orcid: 0000-0002-6393-7058
       github: fwkoch
@@ -366,6 +366,9 @@ project:
   references:
     scipy: https://proceedings.scipy.org/articles/NKVC9349
     docs: https://mystmd.org/guide
+  toc:
+    - file: main.md
+    - file: appendix.md
   error_rules:
     - rule: link-resolves
       severity: ignore
@@ -375,5 +378,5 @@ project:
     - id: pdf
       format: typst
       template: https://github.com/curvenote-templates/scipy.git
-      article: main.md
+      article: main_with_appendix.md
       output: full_text.pdf
