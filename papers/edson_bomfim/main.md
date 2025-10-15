@@ -14,39 +14,39 @@ abstract: |
 
 In the modern technological landscape, data is the foundational asset that powers innovation, from scientific research, training sophisticated machine learning (ML) models to driving critical business analytics. A dataset can be defined as a structured collection of individual data points, or instances, that hold information about a set of entities sharing some common characteristics. The utility and reliability of any system built upon this data are inextricably linked to its quality.
 
-This paper treats the quality of data as the characteristic of the dataset to match the natural distribution, in other words the degree to which it accurately and faithfully represents the real-world phenomena it purports to describe [@anchoring-data-quality] [@data-linter]. This is a crucial distinction. For example, a common challenge in machine learning is class imbalance, where one class is significantly underrepresented. However, if this imbalance accurately reflects the real world (e.g., fraudulent transactions are rare), the dataset itself is not of poor quality; rather, it is a perfect representation of a difficult problem. The challenge then lies with the modeling technique, not the data's fidelity. Our focus is on errors where the data *fails* to match the natural distribution.
+This paper treats the quality of data as the characteristic of the dataset to match the natural distribution, in other words the degree to which it accurately and faithfully represents the real-world phenomena it purports to describe [@anchoring-data-quality; @data-linter]. This is a crucial distinction. For example, a common challenge in machine learning is class imbalance, where one class is significantly underrepresented. However, if this imbalance accurately reflects the real world (e.g., fraudulent transactions are rare), the dataset itself is not of poor quality; rather, it is a perfect representation of a difficult problem. The challenge then lies with the modeling technique, not the data's fidelity. Our focus is on errors where the data *fails* to match the natural distribution.
 
-The consequences of poor data quality are severe, leading to the well-known "garbage in, garbage out" paradigm. Flawed data can introduce subtle biases in algorithms, generate misleading analytical reports, and erode stakeholder trust, ultimately undermining the value of data-driven initiatives [@other-face-of-big-data] [@data-quality-info-and-decision-making]. Despite its importance, a systematic, developer-focused approach to identifying and mitigating these issues is often lacking.
+The consequences of poor data quality are severe, leading to the well-known "garbage in, garbage out" paradigm. Flawed data can introduce subtle biases in algorithms, generate misleading analytical reports, and erode stakeholder trust, ultimately undermining the value of data-driven initiatives [@other-face-of-big-data; @data-quality-info-and-decision-making]. Despite its importance, a systematic, developer-focused approach to identifying and mitigating these issues is often lacking.
 
 This paper aims to fill that gap by providing a practical, empirical guide for data practitioners. We synthesize a comprehensive taxonomy of data quality problems and a corresponding catalogue of detection methods, drawing from extensive research in empirical software engineering, data cleaning, database management and the author own experience. The goal is to equip developers with a structured framework to reason about, test for, and strategically address data quality within their systems.
 
 The paper is structured as follows:
-*   **Section 2: Data Quality Problems** details a taxonomy of 23 common data quality problems, providing concise definitions and relevant context for each, and organizes them into practical categories.
-*   **Section 3: Methods to Detect Data Quality Problems** presents a catalogue of 22 methods used to detect these problems, discusses their automation potential, and groups them into four strategic categories. This section includes a mapping of which method categories are effective for which errors.
-*   **Section 4: Case Study** provides a practical analysis of a real-world public health dataset, demonstrating how the catalogued problems and detection methods can be applied to identify concrete data quality issues.
-*   **Section 5: Conclusions** discuss with the strategic implications of adopting a proactive data quality assurance mindset, drawing parallels between data testing and established software testing practices to argue for a more robust approach to building data systems.
+*   [](#data-quality-problems) details a taxonomy of 23 common data quality problems, providing concise definitions and relevant context for each, and organizes them into practical categories.
+*   [](#methods-to-detect) presents a catalogue of 22 methods used to detect these problems, discusses their automation potential, and groups them into four strategic categories. This section includes a mapping of which method categories are effective for which errors.
+*   [](#case-study) provides a practical analysis of a real-world public health dataset, demonstrating how the catalogued problems and detection methods can be applied to identify concrete data quality issues.
+*   [](#conclusions) discuss with the strategic implications of adopting a proactive data quality assurance mindset, drawing parallels between data testing and established software testing practices to argue for a more robust approach to building data systems.
 
-
+(data-quality-problems)=
 ## Data Quality Problems
 
-A data quality problem, or "dirty data," is any instance where the data fails to correctly represent the real-world entity or event it describes [@taxonomy-of-dity-data] [@problems-methods-data-cleasing] [@survey-of-data-quality-tools]. These problems can be subtle or overt, but all carry the risk of corrupting analysis and undermining model performance. Below is a taxonomy of common data quality problems compiled from the literature.
+A data quality problem, or "dirty data," is any instance where the data fails to correctly represent the real-world entity or event it describes [@taxonomy-of-dity-data; @problems-methods-data-cleasing; @survey-of-data-quality-tools]. These problems can be subtle or overt, but all carry the risk of corrupting analysis and undermining model performance. Below is a taxonomy of common data quality problems compiled from the literature.
 
 ### Taxonomy of Data Quality Problems
 
-1.  **Missing Data / Incompleteness / Empty Values:** Records or fields that should contain a value but are null, empty, or otherwise not populated. This is one of the most common issues, forcing decisions about imputation or removal [@taxonomy-data-quality-challenges] [@comments-on-software-defects].
-2.  **Duplicates / Redundancy:** The same real-world entity is represented by two or more records in a dataset. These can be exact duplicates or approximate (fuzzy) duplicates with minor variations [@survey-of-data-quality-tools] [@ajax] [@the-field-matching-problem].
-3.  **Inconsistency / Contradicting Records / Semantic Consistency Violations:** A single real-world entity is described by multiple records that contain conflicting information (e.g., the same customer with two different birth dates). This also includes violations of semantic rules (e.g., a patient's discharge date is before their admission date) [@survey-of-data-quality-tools] [@HEINRICH201895].
-4.  **Wrong / Incorrect Data / Invalid Data:** Data values that are syntactically valid but factually wrong (e.g., an age of "30" for a person who is actually 40). This is one of the hardest problems to detect without an external source of truth [@problems-methods-data-cleasing] [@ajax].
-5.  **Misspellings:** Typographical errors in textual data, which can hinder matching and categorization (e.g., "Jhon" instead of "John") [@ajax] [@problems-methods-data-cleasing].
-6.  **Outdated Temporal Data / Timeliness / Currency / Volatility:** The data was correct at the time of recording but is no longer valid due to real-world changes (e.g., a customer's address before they moved). This dimension measures how up-to-date the data is [@RIDZUAN2024341] [@problems-methods-data-cleasing].
-7.  **Non-standardized / Non-Conforming Data / Irregularities:** The use of different formats or units to represent the same information (e.g., "USA", "U.S.A.", "United States"; or measurements in both Celsius and Fahrenheit) [@problems-methods-data-cleasing] [@problems-methods-data-cleasing].
-8.  **Ambiguous Data / Incomplete Context:** Data that can be interpreted in multiple ways without additional context. This can arise from abbreviations ("J. Stevens" for John or Jack) or homonyms ("Miami" in Florida vs. Ohio) [@problems-methods-data-cleasing] [@ajax].
-9.  **Embedded / Extraneous Data / Value Items Beyond Attribute Context:** A single field contains multiple pieces of information that should be separate (e.g., a "name" field containing "President John Stevens") or information that belongs in another field (e.g., a zip code in an address line) [@ajax] [@problems-methods-data-cleasing].
+1.  **Missing Data / Incompleteness / Empty Values:** Records or fields that should contain a value but are null, empty, or otherwise not populated. This is one of the most common issues, forcing decisions about imputation or removal [@taxonomy-data-quality-challenges; @comments-on-software-defects].
+2.  **Duplicates / Redundancy:** The same real-world entity is represented by two or more records in a dataset. These can be exact duplicates or approximate (fuzzy) duplicates with minor variations [@survey-of-data-quality-tools; @ajax; @the-field-matching-problem].
+3.  **Inconsistency / Contradicting Records / Semantic Consistency Violations:** A single real-world entity is described by multiple records that contain conflicting information (e.g., the same customer with two different birth dates). This also includes violations of semantic rules (e.g., a patient's discharge date is before their admission date) [@survey-of-data-quality-tools; @HEINRICH201895].
+4.  **Wrong / Incorrect Data / Invalid Data:** Data values that are syntactically valid but factually wrong (e.g., an age of "30" for a person who is actually 40). This is one of the hardest problems to detect without an external source of truth [@problems-methods-data-cleasing; @ajax].
+5.  **Misspellings:** Typographical errors in textual data, which can hinder matching and categorization (e.g., "Jhon" instead of "John") [@ajax; @problems-methods-data-cleasing].
+6.  **Outdated Temporal Data / Timeliness / Currency / Volatility:** The data was correct at the time of recording but is no longer valid due to real-world changes (e.g., a customer's address before they moved). This dimension measures how up-to-date the data is [@RIDZUAN2024341; @problems-methods-data-cleasing].
+7.  **Non-standardized / Non-Conforming Data / Irregularities:** The use of different formats or units to represent the same information (e.g., "USA", "U.S.A.", "United States"; or measurements in both Celsius and Fahrenheit) [@problems-methods-data-cleasing; @problems-methods-data-cleasing].
+8.  **Ambiguous Data / Incomplete Context:** Data that can be interpreted in multiple ways without additional context. This can arise from abbreviations ("J. Stevens" for John or Jack) or homonyms ("Miami" in Florida vs. Ohio) [@problems-methods-data-cleasing; @ajax].
+9.  **Embedded / Extraneous Data / Value Items Beyond Attribute Context:** A single field contains multiple pieces of information that should be separate (e.g., a "name" field containing "President John Stevens") or information that belongs in another field (e.g., a zip code in an address line) [@ajax; @problems-methods-data-cleasing].
 10. **Misfielded Values:** Correct data is stored in the wrong field (e.g., the value "Portugal" in a "city" attribute) [@ajax].
 11. **Outliers / Noise:** Erroneous data points that lie significantly outside the typical distribution of values, often due to measurement or entry errors. They are distinct from valid but extreme data points [@taxonomy-data-quality-challenges].
-12. **Insufficient / Imprecise Metadata:** The metadata (data about the data) is missing or does not adequately describe the metrics, entities, or collection process, leading to a high risk of misinterpretation [@doi:10.1007/s10664-024-10518-9] [@RIDZUAN2024341].
-13. **Schema Violations / Wrong Data Type / Structural Conflicts:** Data that violates the formal schema of the database, such as incorrect data types (e.g., "XY" in an age field), or different structural representations for the same object across systems [@ajax] [@survey-of-data-quality-tools].
-14. **Dangling Data / Referential Integrity Violation:** A record refers to another record that does not exist, breaking a relational link (e.g., an order record with a `customer_id` that does not exist in the customers table) [@ajax] [@problems-methods-data-cleasing].
+12. **Insufficient / Imprecise Metadata:** The metadata (data about the data) is missing or does not adequately describe the metrics, entities, or collection process, leading to a high risk of misinterpretation [@doi:10.1007/s10664-024-10518-9; @RIDZUAN2024341].
+13. **Schema Violations / Wrong Data Type / Structural Conflicts:** Data that violates the formal schema of the database, such as incorrect data types (e.g., "XY" in an age field), or different structural representations for the same object across systems [@ajax; @survey-of-data-quality-tools].
+14. **Dangling Data / Referential Integrity Violation:** A record refers to another record that does not exist, breaking a relational link (e.g., an order record with a `customer_id` that does not exist in the customers table) [@ajax; @problems-methods-data-cleasing].
 15. **Concurrency Control / Transaction Issues:** Data corruption arising from the lack of proper transaction management in databases, leading to issues like lost updates or dirty reads. While typically handled by the DBMS, it is a source of poor data quality [@problems-methods-data-cleasing].
 16. **Wrong Categorical Data:** A value for a categorical attribute is outside the predefined set of valid categories (e.g., `shipping_method` is "air" when the only valid options are "ground" or "sea") [@problems-methods-data-cleasing].
 17. **Name Conflicts / Homonyms / Synonyms:** When integrating data, the same name is used for different objects (homonyms) or different names are used for the same object (synonyms), causing structural ambiguity [@survey-of-data-quality-tools].
@@ -82,7 +82,7 @@ While a flat list of problems is useful, categorization helps in forming a menta
 
 While this categorization is useful for understanding the *impact* of poor data quality, a more practical approach is to categorize problems based on the *methods required to detect them*. This pragmatic view directly informs the implementation of a data quality assurance strategy, which we explore in the next section.
 
-
+(methods-to-detect)=
 ## Methods to Detect Data Quality Problems
 
 Detecting the problems outlined in Section 2 requires a diverse toolkit of methods, ranging from simple, deterministic rules to complex statistical models. Below, we catalogue these methods and discuss some aspects of their application.
@@ -308,11 +308,10 @@ Also we present the @tbl:cat-detection-to-problems which provides a high-level m
   -  ✔
 ```
 
+(case-study)=
 ## Case Study: A Practical Analysis of a Public Health Dataset
 
 To bridge the gap between the theoretical taxonomy of problems and the catalogue of detection methods, this section presents a practical analysis of a real-world dataset: Brazil's Mortality Information System (SIM - Sistema de Informação sobre Mortalidade) [@opendatasus-sim]. As a large, publicly available dataset aggregated from numerous sources across the country, it serves as an excellent example of the types of data quality challenges practitioners face. We will examine data from 2024 to illustrate how specific problems can be identified using the methods discussed. This dataset is publicly available from Brazil's Open Data SUS portal.
-
-
 
 
 Below is a sample from the SIM dataset, showing a selection of key fields.
@@ -459,7 +458,7 @@ The library provides a rich, built-in vocabulary of Expectations that directly m
 A key advantage of Great Expectations is its ability to automatically generate "Data Docs" human-readable documentation that presents the results of data validation runs. This feature transforms abstract quality metrics into tangible reports, fostering trust and communication between data producers and consumers. By integrating such a framework, the analysts can operationalize the principles outlined here, moving from ad-hoc data cleaning to a proactive, scalable, and automated data quality assurance strategy.
 
 
-
+(conclusions)=
 ## Conclusions
 
 This paper has provided a comprehensive, practical-focused framework for understanding, identifying, and addressing data quality problems. By cataloguing 23 distinct types of "dirty data" and 22 corresponding detection methods, we have created a guide that can the turned into actionable strategies.
