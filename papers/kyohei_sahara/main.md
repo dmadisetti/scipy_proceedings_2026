@@ -1,6 +1,7 @@
 ---
 # Ensure that this title is the same as the one in `myst.yml`
 title: "Quantum Chemistry Acceleration: Comparative Performance Analysis of Modern DFT Implementations"
+short_title: 'Quantum Chemistry Acceleration: Comparative Performance Analysis'
 abstract: |
   This article examines the acceleration of quantum chemistry calculations through
   modern implementations of Density Functional Theory (DFT). We provide a
