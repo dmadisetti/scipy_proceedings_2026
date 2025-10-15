@@ -1,8 +1,11 @@
-## Abstract
-Women account for **15–22 %** of the global data science workforce and less than **3 %** of commits to core Python repositories {cite:p}`bcg2020women,rossi2022gender,isu2023onein20`. This “missing 78 %” drains talent, innovation, and economic value scientific Python. We first quantify the gap, then unpack its root causes, and finally propose the Visibility–Invitation–Mechanism (VIM) framework, as a practical remedy. A mixed methods case study—IBM Women in AI (WAI) User Group shows VIM in action: membership jumped from 17 to 38 within a week of its March 2025 launch (↑124 %).
+---
+title: 'Unlocking the Missing 78%: Inclusive Communities for the Future of Scientific Python'
+abstract: |
+  Women account for **15–22 %** of the global data science workforce and less than **3 %** of commits to core Python repositories {cite:p}`bcg2020women,rossi2022gender,isu2023onein20`. This “missing 78 %” drains talent, innovation, and economic value scientific Python. We first quantify the gap, then unpack its root causes, and finally propose the Visibility–Invitation–Mechanism (VIM) framework, as a practical remedy. A mixed methods case study—IBM Women in AI (WAI) User Group shows VIM in action: membership jumped from 17 to 38 within a week of its March 2025 launch (↑124 %).
+---
 
 ### Introduction  
-Python dominates contemporary data science and scientific computing, yet women are conspicuously scarce across its contributor base and professional user community. Longitudinal GitHub analyses show women’s share of commits to high-impact Python projects rising from ≈ 2 % in 2008 to 4.9 % in 2021{cite:p}`rossi2022gender`. Labour-market surveys place women at ≈ 20 % of data-science roles globally, lower than many adjacent STEM domains {cite:p}`bcg2020women,turing_women_ai`.
+Python dominates contemporary data science and scientific computing, yet women are conspicuously scarce across its contributor base and professional user community. Longitudinal GitHub analyses show women’s share of commits to high-impact Python projects rising from ≈ 2 % in 2008 to 4.9 % in 2021 {cite:p}`rossi2022gender`. Labour-market surveys place women at ≈ 20 % of data-science roles globally, lower than many adjacent STEM domains {cite:p}`bcg2020women,turing_women_ai`.
 
 #### Problem Statement — Why the VIM lens?  
 Building on organisational-learning and DEI literature, we treat inclusion as a three-pillar system: **Visibility** (whose work is seen), **Invitation** (who feels welcome), and **Mechanism** (what structural supports exist). Python’s globally distributed, volunteer-heavy culture makes it an ideal proving ground—breakdowns in any pillar surface quickly as stalled pull requests, skewed conference rosters, or talent attrition.
@@ -36,10 +39,10 @@ Our embedded case-study design enables triangulation of large-scale secondary da
 
 *Ethical considerations.* All WAI membership data are voluntary and stored under GDPR-compliant protocols. Identifiable information is aggregated or anonymized before analysis; gender and role fields are self-declared. The study received a low-risk determination from the IBM Research Ethics Committee (ID WAI 2025 04).
 
-Secondary statistics are drawn from peer-reviewed literature and public dashboards (Table 1) to locate the case in a broader empirical context.
+Secondary statistics are drawn from peer-reviewed literature and public dashboards [@tbl:rq] to locate the case in a broader empirical context.
 
 #### Paper Structure
-Section 2 surveys the literature; Section 3 maps explanatory mechanisms; Section 4 details the case study; Section 5 synthesizes findings into the VIM roadmap; Section 6 outlines research and policy implications.
+@section-2 surveys the literature; @section-3 maps explanatory mechanisms; @section-4 details the case study; @section-5 synthesizes findings into the VIM roadmap; @section-6 outlines research and policy implications.
 
 ::: {table} Snapshot of the Gap (latest available data)
 :label: tbl:gap
@@ -51,9 +54,11 @@ Section 2 surveys the literature; Section 3 maps explanatory mechanisms; Section
 | US data-analytics roles    | 26 %          | {cite:p}`harnham2023diversity`     |
 :::
 
+(section-2)=
 ### Literature Review
 This section synthesizes empirical findings on women’s underrepresentation in scientific-Python, open-source software (OSS), data science, and AI through the Visibility–Invitation–Mechanism (VIM) lens. We first quantify the gender gap (2.1), then unpack its systemic drivers (2.2), examine downstream impacts (2.3), review proven inclusion interventions (2.4), and finally position VIM relative to related frameworks (2.5).
 
+(section-2-1)=
 #### Participation Metrics
 ::: {table} Women’s share across data/AI (latest)
 :label: tbl:participation
@@ -145,43 +150,22 @@ Two lenses dominate inclusion work today: **Communities of Practice (CoP)** expl
 
 #### Visual Illustrations
 
-The following figures visually illustrate the conceptual synthesis (Figure&nbsp;1) and dimensional strengths (Figure&nbsp;2) of the frameworks, offering both theoretical and practical comparisons.
+The following figures visually illustrate the conceptual synthesis [@fig:conceptual] and dimensional strengths [fig:dimensional] of the frameworks, offering both theoretical and practical comparisons.
 
-::: {table} Conceptual synthesis (Fig 1) and dimensional strengths (Fig 2)
-:label: tbl:visual-illustrations
+```{figure} Venn_Diagram.png
+:label: fig:conceptual
+Conceptual synthesis. Venn diagram illustrating the conceptual overlap and synthesis of CoP, HAOSS DEI, and VIM frameworks, with VIM positioned at the intersection and extending beyond.
+```
 
-<table>
-  <tr>
-    <!-- ---------- Column 1 ---------- -->
-    <td style="width:50%; vertical-align:top; text-align:center; padding:0 1rem;">
-      <figure>
-        <img src="Venn_Diagram.png"
-             alt="Venn diagram illustrating the conceptual overlap of CoP, CHAOSS DEI, and VIM frameworks"
-             style="width:90%;" />
-        <figcaption>
-          <strong>Figure 1.</strong> Venn diagram illustrating the conceptual overlap and synthesis of CoP,
-          CHAOSS DEI, and VIM frameworks, with VIM positioned at the intersection and extending beyond.
-        </figcaption>
-      </figure>
-    </td>
-  <tr>
-    <!-- ---------- Column 2 ---------- -->
-    <td style="width:15%; vertical-align:top; text-align:center; padding:0 1rem;">
-      <figure>
-        <img src="Spider.png"
-             alt="Radar chart comparing CoP, CHAOSS DEI, and VIM across five inclusion dimensions"
-             style="width:20%; height:auto;" />
-        <figcaption>
-          <strong>Figure&nbsp;2.</strong> Radar chart comparing CoP, CHAOSS DEI, and VIM across five inclusion
-          dimensions: Social, Structural, Actionability, Metrics, and Subjective Experience.
-        </figcaption>
-      </figure>
-    </td>
-  </tr>
-</table>
-:::
+```{figure} spider.png
+:label: fig:dimensional
+:width: 50%
+Dimensional strengths. Radar chart comparing CoP, CHAOSS DEI, and VIM across five inclusion dimensions: Social, Structural, Actionability, Metrics, and Subjective Experience.
+```
 
 
+
+(section-3)=
 ### Systemic Barriers  
 Five mutually reinforcing hurdles keep women from fully participating in scientific Python. Each erodes one or more pillars of the Visibility–Invitation–Mechanism (VIM) framework. These barriers mirror broader patterns in open-source participation, underscoring that the challenges are systematic rather than isolated.
 
@@ -202,8 +186,10 @@ Five mutually reinforcing hurdles keep women from fully participating in scienti
 GitHub data on 600 k users show a loop: pipeline leaks shrink the pool of senior female reviewers → women’s PRs merge 13 % slower and quit sooner (18 % vs 35 % active after 10 yrs) → hiring algorithms see fewer female exemplars and keep filtering them out {cite:p}`rossi2022gender`.
 
 
+(section-4)=
 ### Operationalizing the VIM Framework: The IBM Women in AI User Group  
 
+(section-4-1)=
 #### From “The Missing 78 %” Talk to a Live Community 
 On 5 December 2024 at PyData Global, we presented “The Missing 78 %,” revealing that women represent only 22 % of AI professionals and < 3 % of core Python contributors. Audience demand for actionable next steps led to the rapid formation of the IBM Women in AI (WAI) User Group, founded two weeks later to put our Visibility–Invitation–Mechanism (VIM) framework into practice.
 
@@ -238,6 +224,7 @@ On 5 December 2024 at PyData Global, we presented “The Missing 78 %,” reveal
 </table>
 :::
 
+(section-4-2)=
 #### Phased Rollout & Membership Growth 
 
 Membership grew from **14** (Soft Launch) to **39** (Public Launch) in one week—a **124 % jump**—demonstrating immediate interest. Importantly, retention was effectively 100% in the first month, with 85% of the members remaining active month-to-month. While this high rate may partly reflect the same sample size, it signals strong early commitment beyond the launch spike. 
@@ -250,6 +237,7 @@ Membership grew from **14** (Soft Launch) to **39** (Public Launch) in one week�
 **Fig 4.1**  WAI membership growth: Soft Launch → Public Launch (↑124 %).
 :::
 
+(section-4-3)=
 #### Member-Needs Survey: Shaping Python & AI Offerings
 
 In mid-March 2025, we surveyed all **39** WAI members (21 responses, 54 % response rate). Ranked priorities:
@@ -270,8 +258,9 @@ In mid-March 2025, we surveyed all **39** WAI members (21 responses, 54 % respon
 These findings confirm a focus on **Mechanism**, **Invitation**, and **Visibility** in WAI programming.
 
 
+(section-4-4)=
 #### VIM-Aligned Program Mechanisms & Phasing  
-Building on VIM and survey results, we distilled four initiatives. Each maps to Visibility (V), Invitation (I), and Mechanism (M), with timing, targets, and Section 5 linkage.
+Building on VIM and survey results, we distilled four initiatives. Each maps to Visibility (V), Invitation (I), and Mechanism (M), with timing, targets, and @section-5 linkage.
 
 ::: {table} Phase-I rollout (Mar 2025 – Dec 2025) with Sec 5 links
 :label: tbl:phase1-initiatives
@@ -327,6 +316,7 @@ Building on VIM and survey results, we distilled four initiatives. Each maps to 
 
 **Phasing rationale:** Phase I programs launch in 2025–26, paced by member demand (76 % want hands-on labs; 57 % mentorship) and aim for six workshops, ten mentor pairs, two lightning talks, and three travel grants within 12 months.
 
+(section-4-5)=
 #### Ongoing Evaluation & Continuous Improvement  
 WAI runs a **quarterly scorecard + feedback loop** to keep each pillar on track.
 
@@ -365,17 +355,18 @@ WAI runs a **quarterly scorecard + feedback loop** to keep each pillar on track.
 
 WAI’s phased, member-driven rollout grew the group from 14 → 39 in six months, showing how VIM’s action-insight-adapt loop converts research into real impact.
 
+(section-5)=
 ### A Roadmap for Fostering Inclusion in Data, AI, and Open-Source Communities
-(June 2025 – onward; builds directly on Section 4’s Phase I pilots.)
+(June 2025 – onward; builds directly on @section-4’s Phase I pilots.)
 
-The Visibility–Invitation–Mechanism framework—and its concrete realization via WAI’s four Phase I initiatives (Section 4)—provides a scalable blueprint for closing the “Missing 78 %” gap (Section 2.1). To expand beyond WAI’s single-community proof of concept, we outline ten practical Actions. The first four mirror WAI’s Phase I pilots; the remaining six build on those foundations and stretch into broader partnerships, metrics, and shared learning.
+The Visibility–Invitation–Mechanism framework—and its concrete realization via WAI’s four Phase I initiatives (@section-4)—provides a scalable blueprint for closing the “Missing 78 %” gap [@section-2-1]. To expand beyond WAI’s single-community proof of concept, we outline ten practical Actions. The first four mirror WAI’s Phase I pilots; the remaining six build on those foundations and stretch into broader partnerships, metrics, and shared learning.
 
 #### The Imperative for Systemic Change 
 
-Open-source AI and data projects power global innovation, yet women frequently represent fewer than 10 – 15 % of contributors—and far less among maintainers (Section 2.1). This imbalance risks embedding bias in critical technologies. Systemic, data-driven inclusion is a necessity, not a luxury.
+Open-source AI and data projects power global innovation, yet women frequently represent fewer than 10 – 15 % of contributors—and far less among maintainers [@section-2-1]. This imbalance risks embedding bias in critical technologies. Systemic, data-driven inclusion is a necessity, not a luxury.
 
 #### Action 1: Develop and Distribute an Open Inclusion Toolkit 
-(Piloted in WAI: baseline survey instrument; CoC draft; best-practice templates—see Section 4.1–4.3)
+(Piloted in WAI: baseline survey instrument; CoC draft; best-practice templates—see @section-4-1 – @section-4-3)
 
 **Objective:** Empower any Data/AI project with turnkey, research-informed resources to launch inclusion initiatives.  
 **Implementation:**
@@ -386,10 +377,10 @@ Open-source AI and data projects power global innovation, yet women frequently r
    - Mentorship program blueprints (peer, group, one-on-one)
    - Metrics dashboards for attendance, engagement, and diversity
 2. Community Contributions: Encourage maintainers to upload case studies, templates, and translations.  
-**Impact:** Lowers the barrier for any Data/AI project to adopt evidence-based inclusion strategies (building on WAI’s early toolkit usage in Section 4.1).
+**Impact:** Lowers the barrier for any Data/AI project to adopt evidence-based inclusion strategies (building on WAI’s early toolkit usage in @section-4-1).
 
 #### Action 2: Establish a “VIM-Ready” Project Index 
-(Piloted in WAI: Slack/GitHub onboarding guidelines; WAI’s own VIM alignment—see Section 4.4.)
+(Piloted in WAI: Slack/GitHub onboarding guidelines; WAI’s own VIM alignment—see @section-4-4.)
 
 **Objective:** Help underrepresented developers locate welcoming, well-supported open-source projects.  
 **Implementation:**
@@ -401,7 +392,7 @@ Open-source AI and data projects power global innovation, yet women frequently r
 **Impact:** Provides newcomers with trusted entry points and incentivizes projects to maintain inclusive standards.
 
 #### Action 3: Coordinate Regular Inclusion & Contribution Sprints 
-(WAI Pilot: “Applied Workshops,” Apr 2025 – Sep 2025; see Section 4.4, Action 3 above.)
+(WAI Pilot: “Applied Workshops,” Apr 2025 – Sep 2025; see @section-4-4, Action 3 above.)
 
 **Objective:** Create low-barrier, supportive events that onboard new contributors to Data/AI projects.  
 **Implementation:**
@@ -411,7 +402,7 @@ Open-source AI and data projects power global innovation, yet women frequently r
 **Impact:** Enables structured, supportive experiences that mirror WAI’s Applied Workshops in Phase I: immediate contributions, skill building, and community bonds.
 
 #### Action 4: Forge Strategic Partnerships for Talent Development 
-(WAI Pilot: “Mentor-Match 2.0,” Jun 2025 – Sep 2025; see Section 4.4, Action 4 above.)
+(WAI Pilot: “Mentor-Match 2.0,” Jun 2025 – Sep 2025; see @section-4-4, Action 4 above.)
 
 **Objective:** Build a multi-sector support network—industry, academia, nonprofits—to sustain diverse Data/AI talent pipelines.  
 **Implementation:**
@@ -424,7 +415,7 @@ Open-source AI and data projects power global innovation, yet women frequently r
 **Impact:** Replicates and scales WAI’s Mentor-Match 2.0, fostering supportive peer networks and professional development across the broader ecosystem.
 
 #### Action 5: Champion Inclusive Community Events & Conferences
-(WAI Pilot: “Lightning-Talk Series,” Jul 2025 & Oct 2025; see Section 4.4, Action 5 above.)
+(WAI Pilot: “Lightning-Talk Series,” Jul 2025 & Oct 2025; see @section-4-4, Action 5 above.)
 
 **Objective:** Transform Data/AI gatherings—online and in person—into welcoming, equitable forums that expand networks and skills.  
 **Implementation:**
@@ -435,7 +426,7 @@ Open-source AI and data projects power global innovation, yet women frequently r
 **Impact:** Mirrors WAI’s Lightning-Talk Series, providing underrepresented voices with visibility and real-world speaking experience.
 
 #### Action 6: Adopt Ecosystem-Wide Inclusion Metrics 
-(WAI Pilot: Quarterly “Engagement/Contribution/Equity/Retention” metrics, Apr 2025 – ongoing; see Section 4.5, Action 7 above.)
+(WAI Pilot: Quarterly “Engagement/Contribution/Equity/Retention” metrics, Apr 2025 – ongoing; see @section-4-5, Action 7 above.)
 
 **Objective:** Establish transparent benchmarks and accountability for inclusion efforts across projects and organizations.  
 **Implementation:**
@@ -448,7 +439,7 @@ Open-source AI and data projects power global innovation, yet women frequently r
 **Impact:** Shifts inclusion from a “nice to have” to a measurable shared responsibility—mirroring WAI’s own quarterly metrics cycle.
 
 #### Action 7: Cultivate Shared Learning & Iteration 
-(WAI Pilot: Biannual focus groups and post-event surveys, Apr 2025 – ongoing; see Section 4.5.)
+(WAI Pilot: Biannual focus groups and post-event surveys, Apr 2025 – ongoing; see @section-4-5.)
 
 **Objective:** Keep inclusion strategies adaptive by surfacing lessons learned and evolving best practices in real time.  
 **Implementation:**
@@ -458,7 +449,7 @@ Open-source AI and data projects power global innovation, yet women frequently r
 **Impact:** Transforms the ecosystem into a living lab—continuously improving and sharing effective inclusion tactics, just as WAI’s feedback loops did.
 
 #### Community Participation & Contribution Paths 
-(Built on WAI’s pilot projects in Section 4.4; expanded for general audience.)
+(Built on WAI’s pilot projects in @section-4-4; expanded for general audience.)
 
 To transform strategy into action, provide women—and all newcomers—with clear, ready-to-use entry points. Below is a curated list of repositories actively seeking diverse contributors, all with beginner-friendly labels and inclusive cultures:
 
@@ -470,10 +461,10 @@ To transform strategy into action, provide women—and all newcomers—with clea
 | TensorFlow Docs | Documentation sprints; onboards 20+ first-time writers/year; CoC with ombudsperson (Action 1 & 7 pilot).   |
 | MLFinLab        | Financial-ML library with “newcomer track”; pair-programming sessions; inclusive commit guidelines (Action 3 pilot). |
 
-**Why it matters:** By spotlighting repositories that adopt VIM-Ready practices, we lower intimidation and accelerate skill development, just as WAI’s own pilots did (Section 4).
+**Why it matters:** By spotlighting repositories that adopt VIM-Ready practices, we lower intimidation and accelerate skill development, just as WAI’s own pilots did [@section-4].
 
 #### Partner Companies & Organizations 
-(Scaling WAI’s pilot partnerships from Section 4.4 into a broad coalition.)
+(Scaling WAI’s pilot partnerships from @section-4-4 into a broad coalition.)
 
 IBM’s VIM-driven launch is evolving into an industry-wide inclusion platform. Early adopters and committed partners include:
 
@@ -488,7 +479,7 @@ IBM’s VIM-driven launch is evolving into an industry-wide inclusion platform. 
 **Scaling tip:** Establish an Inclusion Council—a rotating committee of HR, open-source program leads, and community managers from each partner—to share governance, coordinate metrics, and drive cross-company accountability (Action 4 scaled).
 
 #### Projects & Communities Adopting VIM Practices 
-(Demonstrating Section 4’s impact beyond WAI.)
+(Demonstrating @section-4’s impact beyond WAI.)
 
 Several Data/AI communities have already piloted VIM-aligned elements. Sharing these success stories inspires others and illustrates best practices:
 
@@ -509,6 +500,7 @@ While all seven actions are critical, they differ in feasibility and time horizo
 - **Medium-term / Community strengthening (6–18 months):** Actions 2, 6, and 7 require coordination and adoption cycles but provide self-sustaining feedback once established.  
 - **Long-term / Institutional support (18+ months):** Action 4 requires sustained buy-in across industry, academia, and nonprofits to scale impact.
 
+(section-6)=
 ### Conclusion and Future Directions
 
 This final section synthesizes the primary contributions of our study, offering a thorough reflection on the methodological innovations employed, the constraints encountered during the research, and comprehensively lays out a forward-looking agenda designed to guide future research and practice in fostering inclusive digital communities. We conclude by presenting concrete implications derived from our findings and issuing a collective call to action, urging stakeholders to collaboratively drive sustained and meaningful inclusion within Data, AI, and open-source communities worldwide.
