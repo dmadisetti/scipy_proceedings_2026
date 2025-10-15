@@ -108,7 +108,7 @@ Currently supporting 47 distinct input formats (@tbl:formats), each DataInterfac
 </tr>
 </thead>
 <tbody>
-<!-- Extracellular Electrophysiology -->
+
 <tr style="background-color: rgba(27, 87, 136, 0.15)">
 <td rowspan="26" style="padding: 8px; border-right: 2px solid rgba(27, 87, 136, 0.5);"><strong>Extracellular Electrophysiology</strong></td>
 <td rowspan="19" style="padding: 8px; color: #5B9BD5; font-weight: 600;"><em>Recording</em></td>
@@ -143,14 +143,12 @@ Currently supporting 47 distinct input formats (@tbl:formats), each DataInterfac
 <tr style="background-color: rgba(27, 87, 136, 0.20)"><td style="padding: 8px;">Phy</td></tr>
 <tr style="background-color: rgba(27, 87, 136, 0.25)"><td style="padding: 8px;">Plexon</td></tr>
 
-<!-- Intracellular Electrophysiology -->
 <tr style="border-top: 3px solid #1B5788; background-color: rgba(27, 87, 136, 0.15)">
 <td style="padding: 8px; border-right: 2px solid rgba(27, 87, 136, 0.5);"><strong>Intracellular Electrophysiology</strong></td>
 <td style="padding: 8px; font-weight: 600;">—</td>
 <td style="padding: 8px;">ABF</td>
 </tr>
 
-<!-- Optical Physiology -->
 <tr style="border-top: 3px solid #1B5788; background-color: rgba(27, 87, 136, 0.15)">
 <td rowspan="14" style="padding: 8px; border-right: 2px solid rgba(27, 87, 136, 0.5);"><strong>Optical Physiology</strong></td>
 <td rowspan="8" style="padding: 8px; color: #5B9BD5; font-weight: 600;"><em>Imaging</em></td>
@@ -175,7 +173,6 @@ Currently supporting 47 distinct input formats (@tbl:formats), each DataInterfac
 <td style="padding: 8px;">TDT Fiber Photometry</td>
 </tr>
 
-<!-- Behavior -->
 <tr style="border-top: 3px solid #1B5788; background-color: rgba(27, 87, 136, 0.15)">
 <td rowspan="7" style="padding: 8px; border-right: 2px solid rgba(27, 87, 136, 0.5);"><strong>Behavior</strong></td>
 <td rowspan="5" style="padding: 8px; color: #5B9BD5; font-weight: 600;"><em>Motion Tracking</em></td>
@@ -194,7 +191,6 @@ Currently supporting 47 distinct input formats (@tbl:formats), each DataInterfac
 <td style="padding: 8px;">MedPC</td>
 </tr>
 
-<!-- General Data -->
 <tr style="border-top: 3px solid #1B5788; background-color: rgba(27, 87, 136, 0.15)">
 <td rowspan="3" style="padding: 8px; border-right: 2px solid rgba(27, 87, 136, 0.5);"><strong>General Data</strong></td>
 <td style="padding: 8px; color: #5B9BD5; font-weight: 600;"><em>Image</em></td>
