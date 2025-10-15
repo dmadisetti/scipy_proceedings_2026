@@ -286,7 +286,7 @@ plt.tight_layout()
 Global SHAP values for the XGBoost model on the Bank Marketing dataset.
 :::
 
-Note that in the {numref}`fig:beeswarm-xgb`, the features are ordered by their mean absolute SHAP values in
+Note that in {numref}`fig:beeswarm-xgb`, the features are ordered by their mean absolute SHAP values in
 descending order. The x-axis shows the SHAP values, and the y-axis shows the features. 
 Each point represents a sample from the test set. 
 
@@ -305,7 +305,7 @@ impact. The further away a point is from zero, the stronger the feature's influe
 Thus, features with wide distributions across the X-axis have substantial variation in their impact on 
 different instances, while features tightly clustered near zero exert relatively minor influence on the predictions.
 
-In terms of insights, the beeswarm plot {numref}`fig:beeswarm-xgb` shows some interesting observations. For example,
+In terms of insights, the beeswarm plot ({numref}`fig:beeswarm-xgb`) shows some interesting observations. For example,
 customers with more balance (`balance` feature) in their account are more likely to subscribe to a term deposit. 
 On the other hand, customers who have been contacted more frequently in the current campaign (`campaign` feature) 
 are less likely to subscribe to a term deposit. 
@@ -396,7 +396,7 @@ SHAP values. Similar to the beeswarm plot, the positive SHAP values indicate tha
 prediction higher (towards the positive/yes class), while the negative SHAP values imply the feature reduces the 
 model's predicted value (towards the negative/no class).
 
-The {numref}`fig:contact-dependency` shows that the `contact` feature has a considerable impact on the 
+{numref}`fig:contact-dependency` shows that the `contact` feature has a considerable impact on the 
 model's predictions. Customers who were contacted via cellular (`cellular`) are more 
 likely to subscribe to a term deposit than those who were contacted via telephone (`telephone`).
 
@@ -405,7 +405,7 @@ likely to subscribe to a term deposit than those who were contacted via telephon
 SHAP dependency plot for some of the other categorical features.
 :::
 
-The {numref}`fig:dep_categorical_xgb` shows the dependency plots for some of the other categorical features. 
+{numref}`fig:dep_categorical_xgb` shows the dependency plots for some of the other categorical features. 
 On the top left, we see the dependency plot for the `housing` feature. Interestingly, customers who have a housing
 loan (`yes`) are less likely to subscribe to a term deposit than those who do not have a housing loan (`no`).
 On the bottom right, we see the dependency plot for the feature `poutcome`, which represents the outcome of the 
@@ -785,12 +785,12 @@ compared to when the person is laying down.
 Global SHAP values for the CNN model for the `Standing` class.
 :::
 
-In the above {numref}`fig:beeswarm-standing-cnn`, we can see that one of the top features for the `Standing` class
+In {numref}`fig:beeswarm-standing-cnn`, we can see that one of the top features for the `Standing` class
 is `tBodyGyroJerk-arCoeff()-Z,2`. As mentioned earlier, the autoregressive coefficients capture how a signal's 
 current value relates to its previous values. Low values of this feature (in blue) are more clustered towards the 
 positive SHAP values. This implies that for standing, the Z-axis gyroscope jerk signal is essentially flat. The 
 higher-order coefficients (like the second one) collapse toward zero because past values have almost no 
-bearing on the current value. This is in contrast to the `Walking` class {numref}`fig:beeswarm-walking-cnn`
+bearing on the current value. This is in contrast to the `Walking` class ({numref}`fig:beeswarm-walking-cnn`)
 where the gyroscope jerk signal is more dynamic and hence the second autoregressive coefficient is higher.
 
 ###### Laying
