@@ -244,19 +244,44 @@ The `slowfast` model architecture uses the SlowFast [@doi:10.48550/arXiv.1812.03
 
 One of the key technical challenges in working with camera trap videos—rather than still images—is frame selection. For datasets that motivated the development of Zamba, videos had a frame rate of 30 frames per second and were typically about 60 seconds long. Processing every frame as an image for such videos is computationally infeasible. Furthermore, animals may only be present in a minority of recorded frames, and selecting frames without the animal degrades the performance of downstream tasks like species classification and depth estimation.
 
++++ {"no-typst": true}
+
 ::::{figure}
 :label: fig:video-animal-present-examples
 
 :::{figure} fig-video-animal-present-example-1
 :alt: An example camera trap video
+:width: 70%
 :::
 
 :::{figure} fig-video-animal-present-example-2
 :alt: Another example camera trap video
+:width: 70%
 :::
 
 Excerpts from two 60-second example videos in which animals appear only briefly. Each excerpt shows the first 5 seconds; the remaining 55 seconds contain an unoccupied field of view.
 ::::
+
++++
+
+```{raw:typst}
+#import "@preview/subpar:0.1.1"
+#show figure: set block(breakable: false)
+#subpar.grid(figure(
+image("files/fig-video-animal-pre-1f25c1a5d8a47681953ce1aae62e714b.png", width: 100%)
+, caption: []), <fig:video-animal-present-examples-a>,
+figure(
+image("files/fig-video-animal-pre-a53de13a9a4f10197466a828a2b33031.png", width: 100%)
+, caption: []), <fig:video-animal-present-examples-b>,
+columns: 1,
+label: <fig:video-animal-present-examples>,
+  caption: [
+Excerpts from two 60-second example videos in which animals appear only briefly. Each excerpt shows the first 5 seconds\; the remaining 55 seconds contain an unoccupied field of view.
+],
+  kind: "figure",
+  supplement: [Figure],
+)
+```
 
 The default frame selection method currently used by Zamba is an efficient object detection model we developed called MegadetectorLite. This model evaluates each frame for the likelihood that it contains an animal. By default, the top 16 frames[^footnote-frame-number] with the highest detection probabilities are selected and passed to either the species classification or blank detection models.
 
