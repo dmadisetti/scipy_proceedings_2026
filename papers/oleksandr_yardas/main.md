@@ -1,6 +1,7 @@
 ---
 # Ensure that this title is the same as the one in `myst.yml`
 title: Extension of the OpenMC depletion module for transport-independent depletion
+short_title: Extension of OpenMC depletion module for transport-independence
 abstract: |
   We have added functionality for running depletion simulations independently
   of neutron transport in OpenMC, an open source Monte Carlo particle
