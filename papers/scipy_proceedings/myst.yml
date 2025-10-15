@@ -7,7 +7,7 @@ project:
   description: Add a two sentence description about your article.
   authors:
     - rowan1
-    - franklin
+    - fwkoch
     - steve
   contributors:
     - id: rowan1
@@ -47,8 +47,9 @@ project:
         - Software
         - Supervision
         - Writing – review & editing
-    - id: franklin
+    - id: fwkoch
       name: Franklin Koch
+      email: franklin@curvenote.com
       orcid: 0000-0002-6393-7058
       affiliation:
         - id: jupyter
