@@ -5,9 +5,9 @@ project:
   # Update this to match `scipy-2025-<folder>` the folder should be `<firstname_surname>`
   id: scipy-2025-riku_sakamoto
   # Ensure your title is the same as in your `main.md`
-  title: "Phlower: A Deep Learning Framework Supporting PyTorch Tensors with Physical Dimensions"
+  title: 'Phlower: A Deep Learning Framework Supporting PyTorch Tensors with Physical Dimensions'
   # subtitle:
-  description: 
+  description:
   # Authors should have affiliations, emails and ORCIDs if available
   authors:
     - name: Riku Sakamoto
@@ -18,7 +18,7 @@ project:
       roles:
         - Software
         - Validation
-        - "Writing - original draft"
+        - 'Writing - original draft'
   keywords:
     - deep learning
     - physical dimension
@@ -26,6 +26,8 @@ project:
   # Add the abbreviations that you use in your paper here
   abbreviations:
     MyST: Markedly Structured Text
+    PINN: Physics-Informed Neural Network
+    GNN: Graph Neural Network
   # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
   error_rules:
     - rule: doi-exists
