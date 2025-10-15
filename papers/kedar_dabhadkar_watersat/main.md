@@ -85,7 +85,7 @@ Training and cross-validation experiment setup
 
 ### Model selection
 
-Based on 10-fold cross-validation results for each algorithm, we find the random forest model performed the best (@table:results) with 500 decision tree estimators. Model algorithm and optimization setup available as part of the scikit-learn project ([Pedregosa _et al._ (2011)](https://jmlr.csail.mit.edu/papers/v12/pedregosa11a.html)) in Python was used for model training. We choose this model for further inferencing on other Landsat water body scenes with no matching WQP measurements for Chl-a. @fig:predvsactual shows a comparison of the values predicted by this model and the actual Chl-a measurements from WQP.
+Based on 10-fold cross-validation results for each algorithm, we find the random forest model performed the best (@table:results) with 500 decision tree estimators. Model algorithm and optimization setup available as part of the scikit-learn project [@sklearn1] in Python was used for model training. We choose this model for further inferencing on other Landsat water body scenes with no matching WQP measurements for Chl-a. @fig:predvsactual shows a comparison of the values predicted by this model and the actual Chl-a measurements from WQP.
 
 :::{table} Cross-validation results. The regression metrics shown below are for the best set of hyperparameters for the displayed algorithm.
 :label: table:results
