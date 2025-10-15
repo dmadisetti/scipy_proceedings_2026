@@ -37,6 +37,11 @@ project:
   # Add the abbreviations that you use in your paper here
   abbreviations:
     MyST: Markedly Structured Text
+    HJ: Hamilton-Jacobi framework
+    PVTOL: planar vertical take-off and landing
+    UAV: unmanned aircraft vehicle
+    CFS: Chen-Fliess series
+    SEIRS: Susceptible-Exposed-Infectious-Recovered-Susceptible
   # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
   error_rules:
     - rule: doi-exists

@@ -240,7 +240,7 @@ the operation $\cdot: S\times S \rightarrow S$ is referred to as *concatenation*
 The concatenation of a finite number of elements of $S$ is called a *word*. 
 
 
-A *free monoid* $(X^*, \cdot, \empty)$ generated 
+A *free monoid* $(X^*, \cdot, \emptyset)$ generated 
 by the set $X$ is the monoid of all finite concatenations of the elements of $X.$
  The generating set $X$ is called *alphabet* and its elements
  *letters*. Next, we define a function that helps us classify words and
@@ -249,7 +249,7 @@ define the algorithms in [](#sec_results).
 :::{prf:definition} Length of a Word
 :label: def_length
 
-Given the free monoid $(X^*, \cdot, \empty)$ with alphabet $X = \{x_0, \cdots, x_m\}$,
+Given the free monoid $(X^*, \cdot, \emptyset)$ with alphabet $X = \{x_0, \cdots, x_m\}$,
 the *length* of a word is the function $|\cdot |: X^* \rightarrow \mathbb{N}$ such that 
 for an arbitrary word $x_{i_1}\cdots x_{i_n} \in X^*$, it assigns
 $$
@@ -307,13 +307,13 @@ the following:
 :::{prf:definition}
 :label: def_iterint
 
-Given the free monoid $(X^*, \cdot,\empty)$, and the word $\xi = x_{i}\eta \in X^*$, the *iterated integral*
+Given the free monoid $(X^*, \cdot,\emptyset)$, and the word $\xi = x_{i}\eta \in X^*$, the *iterated integral*
 of $u\in L^m[0, T]$ associated to $\xi$ is the operator $E_{\xi}:L^m[0, T]\rightarrow C[0,T]$, described
 recursively by
 
 $$
 \begin{align*}
-E_{\empty}[u](t) = 1
+E_{\emptyset}[u](t) = 1
 \end{align*}
 $$
 
@@ -330,7 +330,7 @@ is naturally extended to power series in the following manner:
 :::{prf:definition}
 :label: def_cfs
 
-Given the free monoid $(X^*, \cdot,\empty)$, and the formal power series $c\in \mathbb{R}^\ell\langle\langle X\rangle\rangle$, the *Chen-Fliess series* associated to $c$ is the functional, $F_{c}[\cdot](t):L^p[0, T]\rightarrow \mathbb{R}^\ell$, described by
+Given the free monoid $(X^*, \cdot,\emptyset)$, and the formal power series $c\in \mathbb{R}^\ell\langle\langle X\rangle\rangle$, the *Chen-Fliess series* associated to $c$ is the functional, $F_{c}[\cdot](t):L^p[0, T]\rightarrow \mathbb{R}^\ell$, described by
 
 $$
 \begin{align*}
@@ -407,7 +407,7 @@ componentwise to obtain the final output. This increases the speed of the algori
 ### Broadcasting
 
 
-Consider the partition $\mathcal{P} = \lbrace t_0, \cdots, t_R\rbrace$ of the time interval $[0, T]$ 
+Consider the partition $\mathcal{P} = \left\{ t_0, \cdots, t_R\right\}$ of the time interval $[0, T]$ 
 and the input vector function $u = (u_0, \cdots, u_m) \in L^{m+1}_p[0,T]$. To avoid computing each iterated integral
 one word at the time and, instead, obtain the batch of all words of a fixed length, we need to consider
 the alphabetical order of the words. First, broadcast the integration of the input function 
@@ -425,7 +425,7 @@ To make notation lighter, we skip the limits of the integrals and their differen
 for each of the components and stacking the result, we obtain the array 
 ```{math}
 :label: eq_block_ethree
-\int u\int u = \left[\int u_i\int u_0 \cdots \int u_i\int u_m\right]_{i\in \lbrace 1, \cdots, m\rbrace}.
+\int u\int u = \left[\int u_i\int u_0 \cdots \int u_i\int u_m\right]_{i\in \left\{ 1, \cdots, m\right\}}.
 ```
 Notice that $\int u \int u$ is the array
 of iterated integral $E_{\eta}[u]$ of words $\eta$ of length two. Inductively, given the array of iterated integrals 
@@ -438,7 +438,7 @@ we construct the array of iterated integral of words in $X^{k+1}$ by broadcastin
 each component $u_i$ and the integration. This is,
 
 ```{math}
-\left(\int u\right)^{k+1} = \left[ \int u_i\odot\left(\int u\right)^k\right]_{i\in \lbrace 1, \cdots, m\rbrace}
+\left(\int u\right)^{k+1} = \left[ \int u_i\odot\left(\int u\right)^k\right]_{i\in \left\{ 1, \cdots, m\right\}}
 ```
 
 Numerically, this is done as follows. Take the matrix of the partitioned input functions
@@ -488,10 +488,7 @@ to obtain the list of $E_{\eta}[u]$ for $\eta\in X^2$. This is,
 \vdots & \ddots & \vdots\\
 \sum_{k=-1}^0 u_0(t_k)\left(\sum_{i = -1}^{k} u_m(t_i)\right)\Delta & \cdots & \sum_{k = -1}^R u_0(t_k)\left(\sum_{i = -1}^{k} u_m(t_i)\right)\Delta\\
 \\
-\hdashline\\
 & \vdots\\
-\\
-\hdashline
 \\
 \sum_{k=-1}^0 u_m(t_k)\left(\sum_{i = -1}^{k} u_0(t_i)\right)\Delta & \cdots & \sum_{k = -1}^R u_m(t_k)\left(\sum_{i = -1}^{k} u_0(t_i)\right)\Delta\\
 \vdots & \ddots & \vdots\\
@@ -537,8 +534,7 @@ H_{x_{i_j}}(\cdot) =
 ```
 :::
 
-
-The following algorithm provides the matrix of the stacked iterated integrals.
+[](#matrix_iter_int) provides the matrix of the stacked iterated integrals.
 This is the list of iterated integrals associated with words of length less than 
 a certain number $N$. We denote $S(\cdot)$ the cummulative sum as in equation [](#eq_num_integ)
 and use a negative number in the index $\{:,-j\}$ to indicate the removal of column $j$
@@ -553,20 +549,22 @@ of the corresponding matrix.
 
 $U_0 \leftarrow 1 \oplus_v u$
 
-$U_1 \leftarrow [\textbf{0}\ |\ S(U_0)\Delta]$
+$U_1 \leftarrow [\bf{0}\ |\ S(U_0)\Delta]$
 
 $\mathcal{U} \leftarrow U_1$
 
 For $k$ in $\{1,\cdots, N-1\}$ do:
->    1. $V \leftarrow \textbf{1}_{m} \otimes U_k$ 
->    2. $v \leftarrow [I_{m}\otimes \textbf{1}_{N_{U_{k}}}] u$ 
+>    1. $V \leftarrow \bf{1}_{m} \otimes U_k$ 
+>    2. $v \leftarrow [I_{m}\otimes \bf{1}_{N_{U_{k}}}] u$ 
 >    3. $M \leftarrow v\odot V$
->    4. $U_{k+1} \leftarrow [\textbf{0}\ |\ S(M)_{:,-\hat{T}}\Delta]$
+>    4. $U_{k+1} \leftarrow [\bf{0}\ |\ S(M)_{:,-\hat{T}}\Delta]$
 >    5. $\mathcal{U} \leftarrow U_k \oplus_{v} \mathcal{U}$
 :::
 
 
-The Python code of the above algorithm is the following:
+The Python code of [](#matrix_iter_int) is the following:
+
++++ {"no-typst": true}
 
 ```{code} python
 :label: alg_iterint
@@ -788,13 +786,247 @@ def iter_int(u,t0, tf, dt, Ntrunc):
     return itint  
 ```
 
++++
+
+````{raw:typst}
+#show figure: set block(breakable: breakableDefault)
+#figure([
+```python
+def iter_int(u,t0, tf, dt, Ntrunc):
+    import numpy as np
+
+    # The NumPy package is used to handle matrix operations.
+
+    """
+    Returns the list of all iterated integrals of the input u 
+    indexed by the words of length from 1 to Ntrunc.
+    
+    
+    Parameters:
+    -----------
+    u: array_like
+        The array of input functions u_i: [t0, tf] -> IR, for all i in {1, ..., m}
+        stacked vertically. Each function has the form u_i = np.array([u_i[0], u_i[1], ..., u_i[N]])  
+        where u_i[0] = u_i(t_0), u_i[1] = u_i(t_0+dt), ..., u_i[N] = u_i(tf), N = int((tf-t0)//dt+1)
+        and u = np.vstack([u_1, u_2, ..., u_m])
+    
+    t0: float
+        Initial point of the time-interval domain of the inputs
+    
+    tf: float
+        Final time of the time-interval domain of the inputs
+    
+    dt: float
+        The size of the step of the evenly spaced partition of the time-interval domain 
+    
+    Ntrunc: int
+        The truncation length of the words of the Chen-Fliess series
+        Sum_{i=0}^Ntrunc Sum_{eta in X^i} (c, eta) E_{eta}[u](t0,tf)
+    
+    
+    
+    Returns:
+    --------
+    list: ndarray
+    """
+```
+],
+  caption: [
+Python function to compute iterated integrals.
+],
+  kind: "code",
+  supplement: [Program],
+) <alg_iterint>
+
+```python
+    # The input function u which is the first parameter
+    # is the vertical stacking of the coordinate input functions u_i
+    # where each u_i is a zero dimensional numpy array of values defined for
+    # each point of the dicretized time interval t = np.linspace(t0, tf, int((tf-t0)//dt+1)))
+    # then the length of the partition of time is computed.
+    length_t = int((tf-t0)//dt+1)
+    
+    # Safety check to see whether the length of u is equal to int((tf-t0)//dt+1))
+    if u.shape[1] != length_t:
+        raise ValueError("The length of the input, %s, must be int((tf-t0)//dt+1) = %s." %(u.shape[1], length_t))
+
+    # Generate the discretized time interval
+    t = np.linspace(t0, tf, length_t)
+
+    # The input u_0 associated with the letter x_0 is generated.
+    u0 = np.ones(length_t)
+
+    # The inputs of the system associated with x_1, ..., x_m with the input associated to x_0 vertically are stacked.
+    # [
+    #  [u_0(t0), u_0(t0+dt), ..., u_0(tf)],
+    #  [u_1(t0), u_1(t0+dt), ..., u_1(tf)],
+    #    .
+    #    .
+    #    .
+    #  [u_m(t0), u_m(t0+dt), ..., u_m(tf)]
+    # ]
+    u = np.vstack([u0, u])
+    # The number of rows which are equal to the number of total input functions is obtained.
+    num_input = int(np.size(u,0))
+
+    # The total number of iterated integrals of word length less than or equal to the truncation length is computed.
+    # total_iterint = num_input + num_input**2 + ... + num_input**Ntrunc
+    total_iterint = num_input*(1-pow(num_input,Ntrunc))/(1-num_input)
+    
+    # This is transformed into an integer.
+    total_iterint = int(total_iterint)
+    
+    # A matrix of zeros with as many rows as the total number of iterated integrals and as many columns
+    # as the elements in the partition of time is computed.
+    Etemp = np.zeros((total_iterint,length_t))
+
+    # Starts the list ctrEtemp such that ctrEtemp[k]-ctrEtemp[k-1] = the number of iterated integrals 
+    # of word length k
+    # ctrEtemp[0] = 0
+    # ctrEtemp[k] = num_input + num_input**2 + ... + num_input**k,  1<=k<=Ntrunc
+    ctrEtemp = np.zeros(Ntrunc+1)
+
+    # ctrEtemp[k] = num_input + num_input**2 + ... + num_input**k,  1<=k<=Ntrunc
+    for i in range(Ntrunc):
+        ctrEtemp[i+1] = ctrEtemp[i]+pow(num_input,i+1)
+
+    # The iterated integrals of the words of length 1, E_{x_i}[u](t0, tf) for all i in {0, ..., m}, are computed.
+    
+    # First, E_{x_i}[u](t0, tf) for all i in {0, ..., m} are computed 
+    # for all tf neq t0
+    sum_acc = np.cumsum(u, axis = 1)*dt
+
+    # Then the values of E_{x_i}[u](t0, tf) for tf = t0, this is E_{x_i}[u](t0, t0) = 0, are added
+    # to have E_{x_i}[u](t0, tf) for all tf>=t0
+    Etemp[:num_input,:] = np.hstack((np.zeros((num_input,1)), sum_acc[:,:-1]))
+
+    # The iterated integrals of the words of length k => 1, E_{x_{i_1}...x_{i_k}}[u](t0, tf) for all i_j in {0, ..., m}, 
+    # are computed at each iteration.
+    for i in range(1,Ntrunc):
+        # start_prev_block = num_input + num_input**2 + ... + num_input**(i-1)
+        start_prev_block = int(ctrEtemp[i-1])
+        # end_prev_block = num_input + num_input**2 + ... + num_input**i
+        end_prev_block = int(ctrEtemp[i])
+        # end_current_block = num_input + num_input**2 + ... + num_input**(i+1)
+        end_current_block = int(ctrEtemp[i+1])
+        # num_prev_block = num_input**i
+        num_prev_block = end_prev_block - start_prev_block
+        # num_current_block = num_input**(i+1)
+        num_current_block = end_current_block - end_prev_block
+        
+
+        """ 
+        U_block =
+        [
+         u_0
+         u_0
+          .   
+          .   # u_0 repeats num_input**i times
+          . 
+         u_0
+         u_1
+         u_1
+          .
+          .   # u_1 repeats num_input**i times
+          .
+         u_1
+          .
+          .   # u_k repeats num_input**i times
+          .
+         u_m
+         u_m
+          .
+          .   # u_m repeats num_input**i times
+          .
+         u_m
+        ]
+        """
+
+        U_block = u[np.repeat(range(num_input), num_prev_block), :]
+        
+        """
+        prev_int_block =
+        [
+        E_{x_0...x_0x_0}[u](t0,tf)  
+        E_{x_0...x_1x_0}[u](t0,tf)
+                .
+                .                # block with all the num_input**i iterated integrals of words of length i
+                .
+        E_{x_m...x_mx_m}[u](t0,tf)
+        --------------------------
+        E_{x_0...x_0x_0}[u](t0,tf)  
+        E_{x_0...x_1x_0}[u](t0,tf)
+                .
+                .                # block with all the num_input**i iterated integrals of words of length i
+                .
+        E_{x_m...x_mx_m}[u](t0,tf)
+        --------------------------
+                .
+                .
+                .
+        --------------------------
+        E_{x_0...x_0x_0}[u](t0,tf)  
+        E_{x_0...x_1x_0}[u](t0,tf)
+                .
+                .                # block with all the num_input**i iterated integrals of words of length i
+                .
+        E_{x_m...x_mx_m}[u](t0,tf)
+        ]
+        
+        In total there are num_input blocks 
+        """
+        prev_int_block = np.tile(Etemp[start_prev_block:end_prev_block,:],(num_input,1))
+  
+
+        """
+        U_block*prev_int_block = 
+        [
+        u_0(tf)E_{x_0...x_0x_0}[u](t0,tf)  
+        u_0(tf)E_{x_0...x_1x_0}[u](t0,tf)
+                .
+                .                        # block with all the num_input**i iterated integrals of words of length i
+                .
+        u_0(tf)E_{x_m...x_mx_m}[u](t0,tf)
+        --------------------------
+        u_1(tf)E_{x_0...x_0x_0}[u](t0,tf)  
+        u_1(tf)E_{x_0...x_1x_0}[u](t0,tf)
+                .
+                .                        # block with all the num_input**i iterated integrals of words of length i
+                .
+        u_1(tf)E_{x_m...x_mx_m}[u](t0,tf)
+        --------------------------
+                .
+                .
+                .
+        --------------------------
+        u_m(tf)E_{x_0...x_0x_0}[u](t0,tf)  
+        u_m(tf)E_{x_0...x_1x_0}[u](t0,tf)
+                .
+                .                        # block with all the num_input**i iterated integrals of words of length i
+                .
+        u_m(tf)E_{x_m...x_mx_m}[u](t0,tf)
+        ]
+        
+        current_int_block integrates U_block*prev_int_block
+        """
+        current_int_block = np.cumsum(U_block*prev_int_block, axis = 1)*dt
+        # Stacks the block of iterated integrals of word length i+1 into Etemp
+        Etemp[end_prev_block:end_current_block,:] = np.hstack((np.zeros((num_current_block,1)), current_int_block[:,:-1]))
+
+    itint = Etemp
+    return itint  
+
+```
+````
+
+
 
 (sec_complie)=
 ### Computation of Lie Derivatives
 
 As in the previous section, we take advantage of 
 the lexicographical order of words. Similarly to the stacked list of iterated integrals,
-the following algorithm provides the list of the stacked Lie derivatives:
+[](#matrix_lie_deriv) provides the list of the stacked Lie derivatives:
 
 :::{prf:algorithm} 
 :label: matrix_lie_deriv
@@ -803,7 +1035,7 @@ the following algorithm provides the list of the stacked Lie derivatives:
 
 **Output** The matrix $\mathcal{G}$ of the stacking of Lie derivatives $L_{\eta}h(x) $ for $|\eta|\leq N$
 
-$G_0 \leftarrow \textbf{1}_{m} \otimes h$
+$G_0 \leftarrow \bf{1}_{m} \otimes h$
 
 $G_1 \leftarrow \frac{\partial}{\partial x} G_0\cdot g$
 
@@ -811,15 +1043,17 @@ $\mathcal{G} \leftarrow G_1$
 
 
 For $k$ in $\{1,\cdots, N-1\}$ do:
->    1. $V \leftarrow \textbf{1}_{m} \otimes  \frac{\partial}{\partial x}G_k$ 
->    2. $v \leftarrow [I_{m}\otimes \textbf{1}_{N_{G_{k}}}] g$ 
+>    1. $V \leftarrow \bf{1}_{m} \otimes  \frac{\partial}{\partial x}G_k$ 
+>    2. $v \leftarrow [I_{m}\otimes \bf{1}_{N_{G_{k}}}] g$ 
 >    3. $M \leftarrow V\cdot v$
 >    4. $G_{k+1} \leftarrow M $
 >    5. $\mathcal{G} \leftarrow G_{k+1} \oplus_{v} \mathcal{G}$
 :::
 
 
-The Python code of the above algorithm is the following:
+The Python code of [](#matrix_lie_deriv) is the following:
+
++++ {"no-typst": true}
 
 ```{code} python
 :label: alg_liederiv
@@ -997,6 +1231,187 @@ def iter_lie(h,vector_field,z,Ntrunc):
     return Ltemp
 ```
 
++++
+
+````{raw:typst}
+#show figure: set block(breakable: breakableDefault)
+#figure([
+```python
+def iter_lie(h,vector_field,z,Ntrunc):
+    import numpy as np
+    import sympy as sp
+
+    # The NumPy package is used to handle matrix operations and
+    # SymPy to compute the partial derivatives of the Lie derivative.
+    
+    """
+    Returns the list of all the Lie derivatives indexed by the words of length from 1 to Ntrunc
+    Given the system 
+        dot{z} = g_0(z) + sum_{i=1}^m g_i(z) u_i(t), 
+        y = h(z)
+    with g_i: S -> IR^n and h: S -> IR, S is a subset of IR^n for all i in {0, ..., n}
+    The Lie derivative L_eta h of the output function h(z) indexed by the word 
+    eta = x_{i_1}x_{i_2}...x_{i_k} is defined recursively as
+        L_eta h = L_(x_{i_2}...x_{i_k}) (partial/partial z h) cdot g_{i_1} 
+    
+    Parameters:
+    -----------
+    h: symbolic
+        The symbolic function that represents the output of the system.
+    
+    vector_field: symbolic array
+        The array that contains the vector fields of the system.
+        vector_field = 
+            sp.transpose(sp.Matrix([[(g_0)_1, ..., (g_0)_n],[(g_1)_1, ..., (g_1)_n], ..., [(g_m)_1, ..., (g_m)_n]]))
+    
+    z: symbolic array
+        The domain of the vector fields.
+        z = sp.Matrix([z1, z2, ...., zn])
+    
+    Ntrunc: int
+        The truncation length of the words index of the Lie derivatives
+    
+    Returns:
+    --------
+    list: symbolic array
+    """
+```
+],
+  caption: [
+Python function to compute Lie derivatives.
+],
+  kind: "code",
+  supplement: [Program],
+) <alg_liederiv>
+
+```python
+     # The number of vector fields is obtained.
+    # num_vfield = m
+    num_vfield = np.size(vector_field,1)
+    
+    
+    # The total number of Lie derivatives of word length less than or equal to the truncation length is computed.
+    # total_lderiv = num_input + num_input**2 + ... + num_input**Ntrunc
+    total_lderiv = num_vfield*(1-pow(num_vfield, Ntrunc))/(1-num_vfield)
+    total_lderiv = int(total_lderiv)
+    
+    
+    # The list that will contain all the Lie derivatives is initiated. 
+    Ltemp = sp.Matrix(np.zeros((total_lderiv, 1), dtype='object'))
+    ctrLtemp = np.zeros((Ntrunc+1,1), dtype = 'int')
+    
+    # ctrLtemp[k] = num_input + num_input**2 + ... + num_input**k,  1<=k<=Ntrunc
+    for i in range(Ntrunc):
+        ctrLtemp[i+1] = ctrLtemp[i] + num_vfield**(i+1)
+
+    # The Lie derivative L_eta h(z) of words eta of length 1 are computed 
+    LT = sp.Matrix([h]).jacobian(z)*vector_field
+
+    # Transforms the lie derivative from a row vector to a column vector
+    LT = LT.reshape(LT.shape[0]*LT.shape[1], 1)
+    
+    # Adds the computed Lie derivatives to a repository
+    Ltemp[:num_vfield, 0] = LT
+
+    
+    # The Lie derivatives of the words of length k => 1, L_{x_{i_1}...x_{i_k}}h(z) for all i_j in {0, ..., m}, 
+    # are computed at each iteration.
+    
+    for i in range(1, Ntrunc):
+        # start_prev_block = num_input + num_input**2 + ... + num_input**(i-1)
+        start_prev_block = int(ctrLtemp[i-1])
+        # end_prev_block = num_input + num_input**2 + ... + num_input**i
+        end_prev_block = int(ctrLtemp[i])
+        # end_current_block = num_input + num_input**2 + ... + num_input**(i+1)
+        end_current_block = int(ctrLtemp[i+1])
+        # num_prev_block = num_input**i
+        num_prev_block = end_prev_block - start_prev_block
+        # num_current_block = num_input**(i+1)
+        num_current_block = end_current_block - end_prev_block
+    
+        """
+        LT = 
+        [
+         [L_{x_0...x_0x_0}h(z)],
+         [L_{x_0...x_1x_0}h(z)],
+                .
+                .
+                .
+         [L_{x_m...x_m}h(z)],
+        ]
+        these are the Lie derivatives indexed by words of length i
+        """
+        LT = Ltemp[start_prev_block:end_prev_block,0]
+        
+        """
+        LT = 
+        [
+         [partial/ partial z L_{x_0...x_0x_0}h(z)],
+         [partial/ partial z L_{x_0...x_1x_0}h(z)],
+                .
+                .
+                .
+         [partial/ partial z L_{x_m...x_m}h(z)],
+        ]
+        * 
+        [g_0, g_1, ..., g_m]
+        
+        =
+        
+        [
+            L_{x_0x_0...x_0}h(z)    |   L_{x_0x_0..x_0x_1x_0}h(z)   |          |  L_{x_0x_m..x_mx_m}h(z)
+            L_{x_1x_0...x_0}h(z)    |   L_{x_1x_0..x_0x_1x_0}h(z)   |          |  L_{x_1x_m..x_mx_m}h(z)
+            L_{x_2x_0...x_0}h(z)    |   L_{x_2x_0..x_0x_1x_0}h(z)   |          |  L_{x_2x_m..x_mx_m}h(z)
+                .                   |        .                      |    ...   |       .
+                .                   |        .                      |    ...   |       .
+                .                   |        .                      |    ...   |       .
+            L_{x_mx_0...x_0}h(z)    |   L_{x_mx_0..x_0x_1x_0}h(z)   |          |  L_{x_mx_m..x_mx_m}h(z)
+        ]
+        
+        """
+        LT = LT.jacobian(z)*vector_field
+        # Transforms the lie derivative from a row vector to a column vector
+        
+        """
+        LT =
+        [
+            L_{x_0x_0...x_0}h(z) 
+            L_{x_1x_0...x_0}h(z) 
+            L_{x_2x_0...x_0}h(z) 
+                .                
+                .                
+                .                
+            L_{x_mx_0...x_0}h(z) 
+            ------------------------
+            L_{x_0x_0...x_1x_0}h(z) 
+            L_{x_1x_0...x_1x_0}h(z) 
+            L_{x_2x_0...x_1x_0}h(z) 
+                .                
+                .                
+                .                
+            L_{x_mx_0...x_1x_0}h(z)
+            ------------------------
+                .
+                .
+                .
+            ------------------------
+            L_{x_0x_m...x_m}h(z) 
+            L_{x_1x_m...x_m}h(z) 
+            L_{x_2x_m...x_m}h(z) 
+                .                
+                .                
+                .                
+            L_{x_mx_m...x_m}h(z) 
+        ]
+        these are the Lie derivatives indexed by words of length i+1
+        """
+        LT = LT.reshape(LT.shape[0]*LT.shape[1], 1)
+        # Adds the computed Lie derivatives to the repository
+        Ltemp[end_prev_block:end_current_block,:]=LT
+
+    return Ltemp
+```
+````
 
 Notice that the definition of the Lie derivative in [](#def_liederiv) does not require
 a modification since its computation is performed backwards from the last letter of the flipped word
@@ -1102,7 +1517,7 @@ Consider $\beta = \sin(t)$ and $\gamma = \cos(t)$, and word truncation length of
 
 
 :::{figure} SEIRS.png
-:label: fig:stream
+:label: fig:seirs
 The picture shows the susceptible population of the SEIRS model and its approximation by CFS
 when the fluctuating inputs $\gamma = \cos(t)$ and $\beta = \sin(t)$ enter the system.
 The CFS is truncated to a word length of $N = 6$. The approximation by CFS performs well before
@@ -1112,6 +1527,8 @@ $t = 1.5s$ when the series starts to diverge.
 
 The following block of code uses CFSpy to compute the CFS
 of the SEIRS system having the susceptible population as the output.
+
++++ {"no-typst": true}
 
 ```{code} python
 :label: my-program
@@ -1206,14 +1623,121 @@ plt.grid()
 plt.show()
 ```
 
++++
+
+````{raw:typst}
+#show figure: set block(breakable: breakableDefault)
+#figure([
+```python
+from CFS import iter_int, iter_lie, single_iter_int, single_iter_lie
+
+import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
+import sympy as sp
+
+mu = 1 / 76
+omega = 1 
+sigma = 1 / 7
+alpha = 0
+N = 1.0
+
+# Define the SEIRS system
+def system(t, x, u1_func, u2_func):
+    x1, x2, x3, x4 = x
+    u1 = u1_func(t)
+    u2 = u2_func(t)
+    dx1 = mu * N - u1 * x3 * x1 / N + omega * x4 - mu * x1
+    dx2 = u1 * x3 * x1 / N - sigma * x2 - mu * x2
+    dx3 = sigma * x2 - u2 * x3 - (mu + alpha) * x3
+    dx4 = u2 * x3 - omega * x4 - mu * x4
+    return [dx1, dx2, dx3, dx4]
+
+# Input 1
+def u1_func(t):
+    return np.sin(t)
+
+# Input 2
+def u2_func(t):
+    return np.cos(t)
+```
+],
+  caption: [
+CFS Computation
+],
+  kind: "code",
+  supplement: [Program],
+) <my-program>
+
+```python
+# Initial condition
+x0 = [0.999, 0.001, 0.0, 0.0]
+
+# Time range
+t0 = 0
+tf = 3
+dt = 0.001
+t_span = (t0, tf)
+
+# Simulation of the system
+solution = solve_ivp(system, t_span, x0, args=(u1_func, u2_func), dense_output=True)
+
+# Partition of the time interval
+t = np.linspace(t_span[0], t_span[1], int((tf-t0)//dt+1))
+y = solution.sol(t)
+
+# Define the symbolic variables
+x1, x2, x3, x4 = sp.symbols('x1 x2 x3 x4')
+x = sp.Matrix([x1, x2, x3, x4])
+
+# Define the system symbolically
+g = sp.transpose(sp.Matrix([[mu * N + omega * x4 - mu * x1, - sigma * x2 - mu * x2, sigma * x2 - (mu + alpha) * x3, - omega * x4 - mu * x4], \
+                            [-x3 * x1 / N, x3 * x1 / N, 0, 0], [0, 0, - x3, x3]]))
+
+# Define the output symbolically
+h = x1
+
+# The truncation of the length of the words that index the Chen-Fliess series
+Ntrunc = 6
+
+# Coefficients of the Chen-Fliess series evaluated at the initial state
+Ceta = np.array(iter_lie(h,g,x,Ntrunc).subs([(x[0], x0[0]),(x[1], x0[1]), (x[2], x0[2]), (x[3], x0[3])]))
+
+# inputs as arrays
+u1 = np.sin(t)
+u2 = np.cos(t)
+
+# input array
+u = np.vstack([u1, u2])
+
+# List of iterated integral
+Eu = iter_int(u,t0, tf, dt, Ntrunc)
+
+# Chen-Fliess series
+F_cu = x0[0]+np.sum(Ceta*Eu, axis = 0)
+
+# Graph of the output and the Chen-Fliess series
+plt.figure(figsize = (12,5))
+plt.plot(t, y[0].T)
+plt.plot(t, F_cu, color='red', linewidth=5, linestyle = '--', alpha = 0.5)
+plt.xlabel('$t$')
+plt.ylabel('$x_1$')
+plt.legend(['Output of the system','Chen-Fliess series'])
+plt.grid()
+plt.show()
+```
+````
+
 Consider the SEIRS model [](#SEIR), with control inputs $\beta \in [0.01, \ 0.7]$ and $\gamma \in [0.03, \ 3]$.
 The following code uses SciPy Optimize to compute the reachable set of the susceptible population as the
 convex line between its minimum and maximum at time $t=1s$. 
 
 :::{figure} MBB.png
-:label: fig:stream
+:label: fig:mbb
 The picture shows the MBB of the reachable set of system [](#SEIR) to inputs $\beta \in [0.01, \ 0.7]$ and $\gamma \in [0.03, \ 3]$ for $t= 1s$. The CFS is truncated to a word length of $N = 6$.
 :::
+
++++ {"no-typst": true}
 
 ```{code} python
 :label: MBB_py
@@ -1294,6 +1818,98 @@ print("Minimum value:", result.fun)
 print("Optimal values:", result_max.x)
 print("Maximum value:", -result_max.fun)
 ```
+
++++
+
+````{raw:typst}
+#show figure: set block(breakable: breakableDefault)
+#figure([
+```python
+import numpy as np
+import sympy as sp
+from CFS import iter_lie, sym_CFS
+from scipy.optimize import minimize
+from scipy.optimize import Bounds
+
+# Parameters of the model
+mu = 1 / 76
+omega = 1
+sigma = 1 / 7
+alpha = 0
+N = 1.0
+
+# Initial state
+x0 = [0.999, 0.001, 0.0, 0.0]
+
+# Define the symbolic variables
+x1, x2, x3, x4 = sp.symbols('x1 x2 x3 x4')
+x = sp.Matrix([x1, x2, x3, x4])
+
+# Define the system symbolically
+g = sp.transpose(sp.Matrix([[mu * N + omega * x4 - mu * x1, - sigma * x2 - mu * x2, sigma * x2 - (mu + alpha) * x3, - omega * x4 - mu * x4], \
+                            [-x3 * x1 / N, x3 * x1 / N, 0, 0], [0, 0, - x3, x3]]))
+
+# Define the output symbolically
+h = x1
+
+# Truncation length for Chen-Fliess series
+Ntrunc = 6
+
+# Coefficients of the Chen-Fliess series evaluated at the initial state (using SymPy Matrix)
+Ceta = sp.Matrix(iter_lie(h, g, x, Ntrunc)).subs([(x[0], x0[0]), (x[1], x0[1]), (x[2], x0[2]), (x[3], x0[3])])
+
+# Define the input symbols
+u0, u1, u2 = sp.symbols('u0 u1 u2')
+u = sp.Matrix([u0, u1, u2])
+t = sp.symbols('t')
+
+
+# Compute F_cu with the coefficients and product terms
+F_cu = x0[0]+np.sum(sym_CFS(u, t, Ntrunc, Ceta), axis = 0)
+
+# Substitute u0 = 1 and t = 1
+F_cu_substituted = sp.Matrix(F_cu).subs({u0: 1, t: 1})
+
+# Display the result after substitution
+
+# Convert symbolic expression to a numerical function using lambdify
+sum_T_func = sp.lambdify([u1, u2], sp.Matrix(F_cu_substituted), 'numpy')
+```
+],
+  caption: [
+The reachable set of the susceptible population is obtained by computing its optimal values generated by the inputs $beta$ and $gamma$ entering the system.
+],
+  kind: "code",
+  supplement: [Program],
+) <MBB_py>
+
+```python
+# Define the objective function for scipy.optimize
+def objective(x):
+    # x is an array [u1, u2]
+    return sum_T_func(x[0], x[1])
+
+def objective_max(x):
+    # x is an array [u1, u2]
+    return -1*sum_T_func(x[0], x[1])
+
+# Initial guess for u1, u2
+u_init = np.array([0.1, 0.1])
+
+# Define the bounds: (0.01<u1<0.7, 0.03<u2<3)
+bounds = Bounds([0.01, 0.03], [0.7, 3])
+
+# Minimize the function with constraints
+result = minimize(objective, u_init, bounds=bounds)
+result_max = minimize(objective_max, u_init, bounds=bounds)
+
+# Print the results
+print("Optimal values:", result.x)
+print("Minimum value:", result.fun)
+print("Optimal values:", result_max.x)
+print("Maximum value:", -result_max.fun)
+```
+````
 
 %(sec_futurework)=
 %## Future Work
