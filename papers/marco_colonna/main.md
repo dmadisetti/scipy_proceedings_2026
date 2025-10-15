@@ -1,6 +1,7 @@
 ---
 # Ensure that this title is the same as the one in `myst.yml`
 title: Redist, a python tool for model-agnostics binned-likelihood fits in High Energy Physics
+short_title: Redist, a python tool for High Energy Physics
 abstract: |
   Current High Energy Physics measurements rely on analysing the data by using underlying theoretical assumptions in model building that do not account for possible deviations from the nominal model on which the assumptions are based.
   This approach can introduce potential bias in parameter extraction and complicate the reinterpretation of measurements without fully reanalyzing the data.
@@ -46,8 +47,9 @@ List of the EFT operators implemented in HAMMER. The symbols $u$ and $d$ represe
   Other efforts, such as the RooHammerModel [@Garc_a_Pardi_as_2022], have been spent to address similar functionalities in the C++-based RooFit-HistFactory framework [@Verkerke:2003ir].
   Redist-HAMMER builds on this idea by bringing it into the Python ecosystem, providing a flexible reinterpretation tool that supports combination and fitting workflows entirely in Python allowing for an easy to start interface to apply reinterpretation of HEP datasets.
 
-  The structure of this document is as follows: section 2 describes the Redist environment and the custom modifier functionalities implemented as an extension of *pyhf*, section 3 describes the Redist-HAMMER interface to *pyhf* with a specific focus on the methods to start coding with it and perform simple fits, section 4 shows a set of proof of usage of the package discussing advantages of the methods that are used, finally section 5 provides an outlook on further implementation of the Redist package in HEP and in multiple different fields of science.
-  
+  The structure of this document is as follows: [](#section-2) describes the Redist environment and the custom modifier functionalities implemented as an extension of *pyhf*, [](#section-3) describes the Redist-HAMMER interface to *pyhf* with a specific focus on the methods to start coding with it and perform simple fits, [](#section-4) shows a set of proof of usage of the package discussing advantages of the methods that are used, finally [](#section-5) provides an outlook on further implementation of the Redist package in HEP and in multiple different fields of science.
+
+(section-2)=
 ## The *pyhf* and the Redist package
   The *pyhf* package implements a very popular model building method for binned-likelihood fits.
   The most generic binned-likelihood can be written as the product of three components:
@@ -81,6 +83,7 @@ List of the EFT operators implemented in HAMMER. The symbols $u$ and $d$ represe
 
   This implementation of Redist-HAMMER allows us to make use of the HAMMER package directly in our fits and is a valuable example of how the Redist weighting method can be applied easily to specific cases by interfacing HEP theory packages to the *pyhf* fitting environment.
 
+(section-3)=
 ## The Redist-HAMMER interface
   The Redist-HAMMER follows a deliberately nested class structure, where each class is responsible for a narrowly defined task, adhering to the principle of single responsibility.
   Higher-level classes delegate specific subtasks to lower-level components, which are composed as objects within them.
@@ -167,6 +170,7 @@ List of the EFT operators implemented in HAMMER. The symbols $u$ and $d$ represe
   Given these very simple ingredients, it is now straightforward to operatively apply the Redist method by defining the custom modifier_hammer class, inheriting from the original modifier, interfacing it with the Fitter.
   The original modifier class can be easily adapted in the same way to any other interface.
 
+(section-4)=
 ## Using HAMMER in *pyhf*
   Finally it is possible to operatively apply the Redist weighting method in *pyhf*.
   A static reference distribution needs to be defined, together with an alternative distribution that is a function of the parameters of interest:
@@ -323,7 +327,7 @@ List of the EFT operators implemented in HAMMER. The symbols $u$ and $d$ represe
   :::
 
   
-
+(section-5)=
 ## Outlook
   We present the Redist-HAMMER interface, an extension of the already existing Redist module to interface HAMMER with the fitting environment of *pyhf*.
   The package has been developed to address the challenge of direct NP measurements through the reinterpretation of the LHCb and Belle datasets, which will be a crucial step for getting a further and deeper understanding of tensions of HEP measurements with SM predictions.

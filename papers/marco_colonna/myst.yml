@@ -48,6 +48,12 @@ project:
   # Add the abbreviations that you use in your paper here
   abbreviations:
     MyST: Markedly Structured Text
+    HEP: High Energy Physics
+    SM: Standard Model
+    BSM: Beyond the Standard Model
+    FF: Form Factor
+    EFT: Effective Field Theory
+
   # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
   error_rules:
     - rule: doi-exists
