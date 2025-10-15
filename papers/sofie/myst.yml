@@ -14,7 +14,10 @@ project:
     - name: Sanjiban Sengupta
       email: sanjiban.sengupta@cern.ch
       orcid: 0009-0005-1281-505X
-      roles: Data curation, Investigation, Writing
+      roles:
+        - Data curation
+        - Investigation
+        - Writing
       affiliations:
         - CERN, Switzerland
         - The University of Manchester, United Kingdom
@@ -22,16 +25,18 @@ project:
     - name: Lorenzo Moneta
       email: lorenzo.moneta@cern.ch
       orcid: 0000-0002-0935-0862
-      roles: Supervision,  Writing – review & editing
+      roles:
+        - Supervision
+        - Writing – review & editing
       affiliations:
         - CERN, Switzerland
   keywords:
-        - machine learning
-        - optimization
-        - heterogeneous architectures
-        - keras
-        - pytorch
-        - onnx
+    - machine learning
+    - optimization
+    - heterogeneous architectures
+    - keras
+    - pytorch
+    - onnx
   # Add the abbreviations that you use in your paper here
   abbreviations:
     CERN: European Organization for Nuclear Research
@@ -53,6 +58,7 @@ project:
     VAE: Variational Auto-encoders
     GPU: Graphics Processing Unit
     GNN: Graph Neural Network
+    ML: machine learning
 
   # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
   error_rules:
