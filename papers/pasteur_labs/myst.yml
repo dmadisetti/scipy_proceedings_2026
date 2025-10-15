@@ -65,6 +65,8 @@ project:
     API: Application Programming Interface
     CFD: Computational Fluid Dynamics
     FEM: Finite Element Method
+    ML: machine learning
+    SI: Simulation Intelligence
   # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
   error_rules:
     - rule: doi-exists
