@@ -4,9 +4,10 @@ project:
   doi: 10.25080/yunw5822
   id: scipy-2025-ianna_osborne
   title: Advancing High Energy Physics Data Analysis with Julia -- A Case for JuliaHEP
-  description: The computational challenges in HEP require optimized solutions for 
-    handling complex data structures, parallel computing, and Just-in-Time (JIT) compilation. 
-    While Python and C++ remain the standard, Julia presents an opportunity to improve 
+  description:
+    The computational challenges in HEP require optimized solutions for
+    handling complex data structures, parallel computing, and Just-in-Time (JIT) compilation.
+    While Python and C++ remain the standard, Julia presents an opportunity to improve
     performance while maintaining usability.
   authors:
     - name: Ianna Osborne
@@ -15,7 +16,7 @@ project:
       affiliations:
         - Princeton University
       corresponding: true
-    - name: Jerry 🦑 Ling
+    - name: Jerry 🦑 Ling
       email: proton@jling.dev
       orcid: 0000-0002-3359-0380
       affiliations:
@@ -29,6 +30,7 @@ project:
   # Add the abbreviations that you use in your paper here
   abbreviations:
     JIT: Just-in-Time compilation
+    HEP: High Energy Physics
   # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
   error_rules:
     - rule: doi-exists

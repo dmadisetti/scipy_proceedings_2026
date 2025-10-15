@@ -1,7 +1,8 @@
 ---
 title: Advancing High Energy Physics Data Analysis with Julia -- A Case for JuliaHEP
+short_title: Advancing High Energy Physics Data Analysis with Julia
 abstract: |
-  For the past 25 years, the High-Energy Physics (HEP) community has steadily adopted Python as its primary language for data analysis, supported by compiled-backend libraries like NumPy [@numpy] and [Awkward Array](https://github.com/scikit-hep/awkward), along with other Python tools like [Uproot](https://github.com/scikit-hep/uproot5) for I/O. However, the Julia programming language offers a compelling alternative, addressing the two-language problem with C++-comparable performance and Python-like ease of use. [JuliaHEP](https://github.com/JuliaHEP/) is an informal organization that aims to unify effort in developing Julia projects related to HEP, outlining its advantages, ongoing developments, and integration with existing Python-based tools.
+  For the past 25 years, the High-Energy Physics (HEP) community has steadily adopted Python as its primary language for data analysis, supported by compiled-backend libraries like [NumPy](https://github.com/numpy/numpy) and [Awkward Array](https://github.com/scikit-hep/awkward), along with other Python tools like [Uproot](https://github.com/scikit-hep/uproot5) for I/O. However, the Julia programming language offers a compelling alternative, addressing the two-language problem with C++-comparable performance and Python-like ease of use. [JuliaHEP](https://github.com/JuliaHEP/) is an informal organization that aims to unify effort in developing Julia projects related to HEP, outlining its advantages, ongoing developments, and integration with existing Python-based tools.
 ---
 
 ## Introduction
@@ -24,7 +25,7 @@ This backend addresses one of the key challenges in multi-language environments:
 
 Awkward Array is a key library for handling complex and jagged HEP data in the Python ecosystem. To access this data from Julia, it is integrated via a dedicated backend, AwkwardArray.jl. What sets this backend apart is its tight integration with Julia’s type system.
 
-To bridge the Python and Julia ecosystems, we make extensive use of PythonCall.jl[@PythonCall.jl], a package that provides bi-directional interoperability between the two languages. This enables us to offload computationally heavy operations to Julia — following a pattern familiar from other JIT compilation tools in Python, such as Numba.
+To bridge the Python and Julia ecosystems, we make extensive use of PythonCall.jl [@PythonCall.jl], a package that provides bi-directional interoperability between the two languages. This enables us to offload computationally heavy operations to Julia — following a pattern familiar from other JIT compilation tools in Python, such as Numba.
 
 We evaluated this integration by comparing performance and usability using Julia-native types like Vector of Vectors, which provide similar capabilities for representing nested, irregular data. Our results show no significant overhead when combining the two ecosystems. Additionally, we explored Julia’s interoperability and native packages to further optimize HEP computations, offering a practical pathway for gradually introducing Julia to the Python-based HEP community.
 
@@ -34,7 +35,7 @@ We present the benefits of using Julia for HEP workloads by benchmarking the sam
 
 :::{figure} combinations.png
 :label: fig:combinations
-This is the combinations performance plot, comparing the ak.combinations function with a Julia kernel on an awkward array. The Julia kernel uses JuliaMath/Combinatorics.jl[@Combinatorics.jl].
+This is the combinations performance plot, comparing the ak.combinations function with a Julia kernel on an awkward array. The Julia kernel uses JuliaMath/Combinatorics.jl [@Combinatorics.jl].
 :::
 
 This is without yet exploiting Julia’s potential for parallel computing and GPU support, which opens the door to workflows where data loaded with AwkwardArray.jl is processed using Julia-native GPU kernels or multi-threaded code — offering scalable performance without disrupting existing pipelines.
