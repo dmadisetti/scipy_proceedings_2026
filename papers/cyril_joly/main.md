@@ -232,6 +232,3 @@ Finally, an OptiMask-based algorithm for tabular imputation will be developed an
 
 This work was funded by Airparif.
 I'd like to thank Paul Catala (Université de Lorraine) and Alexis Lebeau (RTE) for their assistance and review.
-
-::: {#refs}
-:::
