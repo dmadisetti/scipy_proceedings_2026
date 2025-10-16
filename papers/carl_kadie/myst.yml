@@ -1,13 +1,15 @@
 version: 1
 extends: ../papers.yml
 project:
+  first_page: 38
+  last_page: 53
   doi: 10.25080/kcht7476
   # Update this to match `scipy-2025-<folder>` the folder should be `<firstname_surname>`
   id: scipy-2025-carl_kadie
   # Ensure your title is the same as in your `main.md`
   title: Explore Solvable and Unsolvable Equations with SymPy
   subtitle: Find Closed-Form Solutions When Possible – Use Numerical Methods When Necessary
-  description: "Why can we solve some equations easily, while others seem impossible? And another thing: why is this knowledge hidden from us?"
+  description: 'Why can we solve some equations easily, while others seem impossible? And another thing: why is this knowledge hidden from us?'
 
   # Authors should have affiliations, emails and ORCIDs if available
   authors:

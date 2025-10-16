@@ -1,6 +1,8 @@
 version: 1
 extends: ../papers.yml
 project:
+  first_page: 342
+  last_page: 358
   doi: 10.25080/ncmh8429
   id: scipy-2025-missing_78
   title: 'Unlocking the Missing 78%: Inclusive Communities for the Future of Scientific Python'

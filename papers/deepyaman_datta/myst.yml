@@ -1,9 +1,11 @@
 version: 1
 extends: ../papers.yml
 project:
+  first_page: 75
+  last_page: 84
   doi: 10.25080/wjjm7869
   id: scipy-2025-deepyaman_datta
-  title: "Python is all you need: an overview of the composable, Python-native data stack"
+  title: 'Python is all you need: an overview of the composable, Python-native data stack'
   description: >
     For the past decade, tools like dbt have formed a cornerstone of the modern data
     stack, and Python-first alternatives couldn't compete with the scale and performance

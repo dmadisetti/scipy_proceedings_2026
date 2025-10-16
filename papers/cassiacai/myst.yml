@@ -1,6 +1,8 @@
 version: 1
 extends: ../papers.yml
 project:
+  first_page: 54
+  last_page: 66
   doi: 10.25080/vxkf4244
   id: scipy-2025-cassiacai
   title: 'Ocetrac: An Object-based Framework for Tracking and Quantifying Climate Events in Gridded Datasets'
