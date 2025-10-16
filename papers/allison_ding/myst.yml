@@ -16,7 +16,6 @@ project:
       email: allisond@nvidia.com
       affiliations:
         - NVIDIA Corporation
-      orcid: 0000-0000-0000-0000
       roles:
         - conceptualization
         - data curation
@@ -30,7 +29,6 @@ project:
       email: arhamm@nvidia.com
       affiliations:
         - NVIDIA Corporation
-      orcid: 0000-0000-0000-0001
       roles:
         - conceptualization
         - methodology
@@ -40,7 +38,6 @@ project:
       email: njuluru@nvidia.com
       affiliations:
         - NVIDIA Corporation
-      orcid: 0000-0000-0000-0002
       roles:
         - conceptualization
         - writing - original draft
