@@ -1,0 +1,86 @@
+
+- title: A Lightweight Pipeline for Rewards-Guided Synthetic Text Generation Using NeMo and RAPIDS
+  author: Jiajia Ding, Arham Mehta, Nirmal Juluru
+  page: 1
+- title: Explaining ML predictions with SHAP
+  author: Avik Basu
+  page: 14
+- title: Explore Solvable and Unsolvable Equations with SymPy
+  author: Carl Kadie
+  page: 38
+- title: 'Ocetrac: An Object-based Framework for Tracking and Quantifying Climate Events in Gridded Datasets'
+  author: Cassia Cai, Jacob T. Cohen, Hillary Scannell, Valentina Staneva, LuAnne Thompson
+  page: 54
+- title: 'OptiMask: Efficiently Finding the Largest NaN-Free Submatrix'
+  author: Cyril Joly
+  page: 67
+- title: 'Python is all you need: an overview of the composable, Python-native data stack'
+  author: Deepyaman Datta
+  page: 75
+- title: 'Zamba: Computer vision for wildlife conservation'
+  author: Emily Dorne, Jay Qi, Peter Bull, Colleen Stephens, Mattia Bessone, Benjamin Debetencourt, Barbara Fruth, David Morgan, Meredith S. Palmer, Crickette Sanz, Janika Wendefeuer, Catherine Crockford, Tobias Deschner, Kevin E. Langergraber, Alex K. Piel, Martha Robbins, Volker Sommer, Fiona A. Stewart, Roman M. Wittig, Klaus Zuberbuehler, Hjalmar S. Kühl, Mimi Arandjelovic
+  page: 85
+- title: 'A Practical Guide to Data Quality: Problems, Detection, and Strategy'
+  author: Edson Bomfim
+  page: 112
+- title: On the Path to Seamless Python Serverless Data Analytics
+  author: Enrique Molina-Giménez, German T. Eizaguirre, Pedro García-López
+  page: 124
+- title: An Active Learning Plugin In Napari To Fine-Tune Models For Large-scale Bioimage Analysis
+  author: Fernando Cervantes-Sanchez
+  page: 138
+- title: Advancing High Energy Physics Data Analysis with Julia -- A Case for JuliaHEP
+  author: Ianna Osborne, Jerry 🦑 Ling
+  page: 149
+- title: 'CFSpy: A Python Library for the Computation of Chen-Fliess Series'
+  author: Ivan Perez Avellaneda
+  page: 153
+- title: Jupyter Book 2 and the MyST Document Stack
+  page: 173
+- title: 'Eyes in the sky: Estimating Inland Water Quality Using Landsat Data'
+  author: Kedar Dabhadkar
+  page: 194
+- title: 'Quantum Chemistry Acceleration: Comparative Performance Analysis of Modern DFT Implementations'
+  author: Kyohei Sahara
+  page: 202
+- title: Imprecise uncertainty management with uncertain numbers to facilitate trustworthy computations
+  author: Yu Chen, Scott Ferson
+  page: 207
+- title: Redist, a python tool for model-agnostics binned-likelihood fits in High Energy Physics
+  author: Marco Colonna, Johannes Albrecht, Florian Bernlochner, Lorenz Gärtner, Abhijit Mathad, Biljana Mitreska
+  page: 222
+- title: Reproducible Machine Learning Workflows for Scientists with Pixi
+  author: Matthew Feickert, Ruben Arts, John Kirkham
+  page: 232
+- title: 'NeuroConv: Streamlining Neurophysiology Data Conversion to the NWB Standard'
+  author: Heberto Mayorquin, Cody Baker, Paul Adkisson-Floro, Szonja Weigl, Alessandra Trappani, Luiz Tauffer, Oliver Rübel, Benjamin Dichter
+  page: 245
+- title: Performing Object Detection on Drone Orthomosaics with Meta's Segment Anything Model (SAM)
+  author: Nicholas McCarty
+  page: 259
+- title: Extension of the OpenMC depletion module for transport-independent depletion
+  author: Oleksandr Yardas, Paul Romano, Madicken Muk, Kathryn Huff
+  page: 269
+- title: Pipeline-level differentiable programming for the real world
+  author: Andrin Rehmann, Dion Häfner, Alessandro Angioi, Yongquan Qu, Andrei Paleyes
+  page: 278
+- title: 'Phlower: A Deep Learning Framework Supporting PyTorch Tensors with Physical Dimensions'
+  author: Riku Sakamoto
+  page: 286
+- title: 'SciPy Proceedings: An Exemplar for Publishing Computational Open Science'
+  page: 294
+- title: Empowering Learners - Teaching Reproducible Research with Open-Source Tools
+  author: Deborah Khider, Julien Emile-Geay, David Edge, Nicholas McKay
+  page: 303
+- title: 'Numba v2: Towards a SuperOptimizing Python Compiler'
+  author: Siu Kwan Lam, Stuart Archibald, Stan Seibert
+  page: 311
+- title: Challenges and Implementations for ML Inference in High-energy Physics
+  author: Sanjiban Sengupta, Lorenzo Moneta
+  page: 331
+- title: 'Unlocking the Missing 78%: Inclusive Communities for the Future of Scientific Python'
+  author: Noor Aftab
+  page: 342
+- title: 'Enhancing Curve Fitting with SciPy: Interactive Spline Modeling and Reproducibility with SplineCloud'
+  author: Vadym Pasko
+  page: 359
