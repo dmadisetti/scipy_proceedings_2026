@@ -6,7 +6,7 @@ project:
   doi: 10.25080/frwc3537
   id: scipy-2025-scipy_proceedings
   title: 'SciPy Proceedings: An Exemplar for Publishing Computational Open Science'
-  description: Add a two sentence description about your article.
+  description: The SciPy Proceedings have served as a cornerstone of scholarly communication within the scientific Python ecosystem since their introduction in 2008. In 2024, the publication process underwent a significant transformation, adopting a new open-source infrastructure built on MyST Markdown and Curvenote. This transition enabled a web-first, interactive publishing workflow that improves reproducibility, readability, and metadata quality.
   authors:
     - rowan1
     - fwkoch

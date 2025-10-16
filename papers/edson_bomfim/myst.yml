@@ -9,7 +9,7 @@ project:
   # Ensure your title is the same as in your `main.md`
   title: 'A Practical Guide to Data Quality: Problems, Detection, and Strategy'
   # subtitle:
-  description: Add a two sentence description about your article.
+  description: This paper serves as a practical guide for software developers and data practitioners to understand, identify, and address data quality issues. We present a comprehensive taxonomy of 23 common data quality problems, synthesizing definitions and contexts from empirical software engineering and database literature. Subsequently, we catalogue 22 distinct methods for detecting these issues, categorizing them into actionable strategies.
   # Authors should have affiliations, emails and ORCIDs if available
   authors:
     - name: Edson Bomfim

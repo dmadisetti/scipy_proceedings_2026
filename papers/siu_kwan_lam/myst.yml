@@ -9,7 +9,7 @@ project:
   # Ensure your title is the same as in your `main.md`
   title: 'Numba v2: Towards a SuperOptimizing Python Compiler'
   # subtitle:
-  description: Add a two sentence description about your article.
+  description: This paper presents early work on Numba v2, a general-purpose compiler for Python that integrates equality saturation (EqSat) as a foundation for program analysis and transformation. Whilst inspired in part by the needs of AI/ML workloads, and also supporting tensor optimizations, Numba v2 is not a tensor-oriented compiler. Instead, it provides a flexible framework where user-defined mathematical and domain-specific rewrites participate in the compilation process as a complement to the compilation supported by Numba today.
   # Authors should have affiliations, emails and ORCIDs if available
   authors:
     - name: Siu Kwan Lam

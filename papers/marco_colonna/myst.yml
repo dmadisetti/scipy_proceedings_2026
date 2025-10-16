@@ -9,7 +9,7 @@ project:
   # Ensure your title is the same as in your `main.md`
   title: Redist, a python tool for model-agnostics binned-likelihood fits in High Energy Physics
   # subtitle:
-  description: Add a two sentence description about your article.
+  description: Redist is a package for building model-agnostic binned-likelihood fits, allowing combination and enhancing the reinterpretation of datasets. Redist allows direct inference of theoretical parameters of any beyond the Standard Model scenario through histogram reweighting, properly taking into account changes in kinematic distributions.
   # Authors should have affiliations, emails and ORCIDs if available
   authors:
     - name: Marco Colonna

@@ -9,7 +9,7 @@ project:
   # Ensure your title is the same as in your `main.md`
   title: 'Eyes in the sky: Estimating Inland Water Quality Using Landsat Data'
   # subtitle:
-  description: Add a two sentence description about your article.
+  description: Algal blooms threaten human health and aquatic ecosystems, making monitoring essential. While Chlorophyll-A (Chl-a) effectively indicates algal presence, laboratory analysis is complex. This study utilizes satellite imagery as an alternative, addressing previous research limitations caused by scarce lab data.
   # Authors should have affiliations, emails and ORCIDs if available
   authors:
     - name: Kedar Dabhadkar
