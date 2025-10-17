@@ -501,7 +501,7 @@ This article did not intend to capture those wide-ranging contributions and idea
 
 This project has benefited from key financial support from multiple organizations.
 The development of MyST Markdown, the Executable Books ecosystem, and Jupyter Book 1 was supported by a grant from the Alfred P. Sloan Foundation (Grant #9231).
-The development of the MyST Document Engine and the re-architecture of Jupyter Book 2 were made possible in-part by funding from the Alfred P. Sloan Foundation (Grant #9231), Alberta Innovates, The Stanford Doerr School of Sustainability, the Chan Zuckerberg Initiative (2i2c, [link](https://chanzuckerberg.com/science/programs-resources/open-science/grants/2i2c/)), and The Navigation Fund (2i2c, [link](https://tinyurl.com/bbejct5n)).
+The development of the MyST Document Engine and the re-architecture of Jupyter Book 2 were made possible in-part by funding from the Alfred P. Sloan Foundation (Grant #9231), Alberta Innovates, The Stanford Doerr School of Sustainability, the Chan Zuckerberg Initiative (2i2c, [link](https://chanzuckerberg.com/science/programs-resources/open-science/grants/2i2c/)), and The Navigation Fund (2i2c, @navigation_fund).
 It also included in-kind support from Curvenote, 2i2c, and the broader open-source community.
 The refactoring of the QIIME 2 Framework documentation ecosystem was supported in part by the NIH National Cancer Institute (Grant 1U24CA248454-01).
 Project Pythia's transition to Jupyter Book 2 was supported by the National Science Foundation (awards 2324302, 2324303 and 2324304).
