@@ -16,9 +16,9 @@ for folder in $(ls | egrep -i '^[^\.]+$'); do
 done
 # Write frontmatter page number summary
 bash ./generate_summary.sh ../templates/scipy-preface/papers.yml *
-# # Generate frontmatter PDF
-# cd ../proceedings
-# curvenote build --pdf
-# cd ../papers
-# # Combine all PDFs into final PDF
-# pdftk preface.pdf */full_text.pdf cat output ../proceedings/proceedings.pdf
+# Generate frontmatter PDF
+cd ../proceedings
+curvenote build --pdf
+cd ../papers
+# Combine all PDFs into final PDF
+pdftk preface.pdf */full_text.pdf cat output ../proceedings/proceedings.pdf

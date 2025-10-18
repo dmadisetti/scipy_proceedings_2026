@@ -1759,7 +1759,7 @@ function createCardDirective(title, body, footer, link, kind = 'curvenoteArticle
 
 // src/scipy.slides.ts
 function createSlidesCardDirective(item, parseMyst) {
-  const { title, authors, description, zenodo_url, doi } = item;
+  const { title, authors, description, zenodo_url, doi, youtube } = item;
   const body = [];
   if (description) {
     body.push(u3('paragraph', [parseMyst(description)]));
@@ -1768,7 +1768,7 @@ function createSlidesCardDirective(item, parseMyst) {
     u3('paragraph', [u3('emphasis', [u3('text', `${authors.map((a) => a.name).join(', ')}`)])])
   );
   const footer = doi ? [u3('emphasis', [u3('text', doi)])] : void 0;
-  const link = doi;
+  const link = youtube ?? doi;
   const kind = 'curvenoteExternalListItem';
   const card = createCardDirective([parseMyst(title)], body, footer, link, kind);
   card.data = {

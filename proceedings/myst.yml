@@ -36,7 +36,6 @@ project:
       articles:
         - organization.md
         - slides.md
-        - students.md
       output: ../papers/preface.pdf
   bibliography: []
 extends: ../proceedings.yml
