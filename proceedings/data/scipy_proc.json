@@ -57,10 +57,12 @@
       "name": "Conference Co-Chairs",
       "members": [
         {
-          "name": "Julie Krugler Hollek"
+          "name": "Julie Krugler Hollek",
+          "org": "Mozilla"
         },
         {
-          "name": "Madicken Munk"
+          "name": "Madicken Munk",
+          "org": "Oregon State University"
         }
       ]
     },
@@ -68,16 +70,20 @@
       "name": "Program",
       "members": [
         {
-          "name": "Naty Clement"
+          "name": "Naty Clement",
+          "org": "NVIDIA"
         },
         {
-          "name": "Matthew Feickert"
+          "name": "Matthew Feickert",
+          "org": "University of Wisconsin-Madison"
         },
         {
-          "name": "Gil Forsythe"
+          "name": "Gil Forsythe",
+          "org": "NVIDIA"
         },
         {
-          "name": "Ariana Mendible"
+          "name": "Ariana Mendible",
+          "org": "Seattle University"
         }
       ]
     },
@@ -85,19 +91,24 @@
       "name": "Tutorial",
       "members": [
         {
-          "name": "Paul Anzel"
+          "name": "Paul Anzel",
+          "org": "Rev"
         },
         {
-          "name": "Matt Craig"
+          "name": "Matt Craig",
+          "org": "Minnesota State University Moorhead"
         },
         {
-          "name": "Allen Harvey"
+          "name": "Allen Harvey",
+          "org": "Applied Research Associates, Inc"
         },
         {
-          "name": "Tetsuo Koyama"
+          "name": "Tetsuo Koyama",
+          "org": "PyVista community"
         },
         {
-          "name": "Inessa Pawson (Teen Track)"
+          "name": "Inessa Pawson (Teen Track)",
+          "org": "OpenTeams"
         }
       ]
     },
@@ -105,16 +116,20 @@
       "name": "Hybrid",
       "members": [
         {
-          "name": "Rebecca BurWei"
+          "name": "Rebecca BurWei",
+          "org": "Northwestern Medicine"
         },
         {
-          "name": "David Nicholson"
+          "name": "David Nicholson",
+          "org": "BAE FASTLabs"
         },
         {
-          "name": "Neelima Pulagam"
+          "name": "Neelima Pulagam",
+          "org": "Ford Motor Company"
         },
         {
-          "name": "Shubham Sharma"
+          "name": "Shubham Sharma",
+          "org": "GalaxyEye Space"
         }
       ]
     },
@@ -122,28 +137,36 @@
       "name": "Proceedings",
       "members": [
         {
-          "name": "Amey Ambade"
+          "name": "Amey Ambade",
+          "org": "SLB"
         },
         {
-          "name": "Rowan Cockett"
+          "name": "Rowan Cockett",
+          "org": "Curvenote"
         },
         {
-          "name": "Ana Comesana"
+          "name": "Ana Comesana",
+          "org": "Lawrence Berkeley National Laboratory"
         },
         {
-          "name": "Sean Freeman"
+          "name": "Sean Freeman",
+          "org": "University of Alabama"
         },
         {
-          "name": "Sanhita Joshi"
+          "name": "Sanhita Joshi",
+          "org": "Deloitte"
         },
         {
-          "name": "Franklin Koch"
+          "name": "Franklin Koch",
+          "org": "Curvenote"
         },
         {
-          "name": "Charles Lindsey"
+          "name": "Charles Lindsey",
+          "org": "Aptos"
         },
         {
-          "name": "Hongsup Shin"
+          "name": "Hongsup Shin",
+          "org": "Arm"
         }
       ]
     },
@@ -151,16 +174,20 @@
       "name": "Community Outreach",
       "members": [
         {
-          "name": "Juanita Gomez"
+          "name": "Juanita Gomez",
+          "org": "University of California, Santa Cruz"
         },
         {
-          "name": "James Lamb"
+          "name": "James Lamb",
+          "org": "NVIDIA"
         },
         {
-          "name": "Cynthia Chen"
+          "name": "Cynthia Chen",
+          "org": "Stowers Institute for Medical Research"
         },
         {
-          "name": "Juan Cabanela"
+          "name": "Juan Cabanela",
+          "org": "Minnesota State UniversityMoorhead"
         }
       ]
     },
@@ -168,10 +195,12 @@
       "name": "Birds-of-a-Feather",
       "members": [
         {
-          "name": "Michael Akerman"
+          "name": "Michael Akerman",
+          "org": "Novonesis"
         },
         {
-          "name": "Mike Droettboom"
+          "name": "Mike Droettboom",
+          "org": "Microsoft"
         }
       ]
     },
@@ -179,13 +208,16 @@
       "name": "Sprints",
       "members": [
         {
-          "name": "Hannah Aizenman"
+          "name": "Hannah Aizenman",
+          "org": "Matplotlib"
         },
         {
-          "name": "Nathan Goldbaum"
+          "name": "Nathan Goldbaum",
+          "org": "Quantsight"
         },
         {
-          "name": "Brigitta Sipőcz"
+          "name": "Brigitta Sipőcz",
+          "org": "Caltech/IPAC"
         }
       ]
     },
@@ -193,13 +225,16 @@
       "name": "Activities",
       "members": [
         {
-          "name": "Matt Davis"
+          "name": "Matt Davis",
+          "org": "Populus"
         },
         {
-          "name": "Ed Rogers"
+          "name": "Ed Rogers",
+          "org": "Majesco"
         },
         {
-          "name": "Oleksandr Yardas"
+          "name": "Oleksandr Yardas",
+          "org": "University of Illinois Urbana-Champaign"
         }
       ]
     },
@@ -207,10 +242,12 @@
       "name": "Financial Aid",
       "members": [
         {
-          "name": "Eric Ma"
+          "name": "Eric Ma",
+          "org": "Moderna"
         },
         {
-          "name": "Nadia Tahiri"
+          "name": "Nadia Tahiri",
+          "org": "University of Sherbrooke"
         }
       ]
     },
@@ -218,8 +255,8 @@
       "name": "Sponsors/Financial/Logistics",
       "members": [
         {
-          "org": "NumFOCUS",
-          "name": "Jim Weiss"
+          "name": "Jim Weiss",
+          "org": "NumFOCUS"
         }
       ]
     },
@@ -362,6 +399,59 @@
       "resource_url": "https://conference.scipy.org/proceedings"
     }
   },
-  "scipy_scholarship": [],
+  "scipy_scholarship": [
+    {
+      "name": "Fernando Cervantes-Sánchez",
+      "org": "The Jackson Laboratory"
+    },
+    {
+      "name": "Sinclair Combs",
+      "org": "Colorado School of Mines"
+    },
+    {
+      "name": "Cainã Max Couto da Silva",
+      "org": "UW-Madison"
+    },
+    {
+      "name": "C.A.M. Gerlach",
+      "org": "Python and Spyder core team"
+    },
+    {
+      "name": "Juanita Gomez",
+      "org": "University of California, Santa Cruz"
+    },
+    {
+      "name": "Lilinoe Harbottle",
+      "org": "Independent"
+    },
+    {
+      "name": "Arnaud Kayonga",
+      "org": "MeshPower/Mbaza NLP"
+    },
+    {
+      "name": "Anastasiia Kostiv",
+      "org": "DataRacerEdu"
+    },
+    {
+      "name": "Tetsuo Koyama",
+      "org": "Akari Inc."
+    },
+    {
+      "name": "Neha Gupta",
+      "org": "Carnegie Mellon University"
+    },
+    {
+      "name": "Stephanie Rideout",
+      "org": "Independent"
+    },
+    {
+      "name": "Sanjiban Sengupta",
+      "org": "CERN, The University of Manchester"
+    },
+    {
+      "name": "Arkadiusz Trawinski",
+      "org": "ING"
+    }
+  ],
   "diversity_scholarship": []
 }

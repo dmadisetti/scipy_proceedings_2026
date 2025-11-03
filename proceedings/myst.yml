@@ -35,6 +35,7 @@ project:
       template: ../templates/scipy-preface
       articles:
         - organization.md
+        - scholarship.md
         - slides.md
       output: ../papers/preface.pdf
   bibliography: []

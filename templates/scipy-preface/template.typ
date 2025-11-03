@@ -13,7 +13,7 @@
   #v(14em)
   #image("logo.png", width: 50%)
   #v(3em)
-  #text(size:30pt, weight: "bold")[Proceedings of the 24rd Python in Science Conference]
+  #text(size:30pt, weight: "bold")[Proceedings of the 24th Python in Science Conference]
 ]
 
 #pagebreak()

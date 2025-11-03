@@ -1687,7 +1687,6 @@ var scipyStudents = {
           },
         },
         [
-          u2('heading', { depth: 2, tight: true }, [u2('text', 'Scholarship Recipients')]),
           u2('list', { ordered: false }, json.scipy_scholarship.map(studentToMdast)),
         ]
       ),
