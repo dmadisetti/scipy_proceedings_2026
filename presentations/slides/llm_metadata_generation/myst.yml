@@ -1,6 +1,9 @@
 version: 1
 extends: ../../../proceedings.yml
 project:
+  doi: 10.5281/zenodo.18039103
+  identifiers:
+    zenodo: https://zenodo.org/deposit/18039103
   title: 'Accelerating scientific data releases: Automated metadata generation with LLM agents'
   authors:
     - name: Tudor Garbulet
@@ -15,4 +18,3 @@ project:
     The methodology involves a multi-stage process where raw data is first parsed and analyzed by the LLM to extract relevant scientific and contextual information. This information is then structured into metadata templates that adhere strictly to recognized standards, thereby reducing human error and accelerating the data release cycle. We demonstrate the effectiveness of our approach using the USGS ScienceBase repository, where we have successfully generated metadata for a variety of scientific datasets, including images, time series, and text data.
 
     Beyond its immediate application to the USGS ScienceBase repository, our open-source framework is designed to be extensible, allowing adaptation to other data release processes across various scientific domains. We will discuss the technical challenges encountered, such as managing diverse data formats and ensuring metadata quality, and outline strategies for community-driven enhancements. This work not only streamlines the metadata creation workflow but also sets the stage for broader adoption of generative AI in scientific data management.
-
