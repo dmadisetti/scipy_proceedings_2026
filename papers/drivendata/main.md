@@ -268,10 +268,10 @@ Excerpts from two 60-second example videos in which animals appear only briefly.
 #import "@preview/subpar:0.1.1"
 #show figure: set block(breakable: false)
 #subpar.grid(figure(
-image("files/fig-video-animal-pre-1f25c1a5d8a47681953ce1aae62e714b.png", width: 100%)
+image("files/fig-video-animal-pre-53d74e5b402de5c9adae8db03f14fe8d.png", width: 100%)
 , caption: []), <fig:video-animal-present-examples-a>,
 figure(
-image("files/fig-video-animal-pre-a53de13a9a4f10197466a828a2b33031.png", width: 100%)
+image("files/fig-video-animal-pre-caf8d36a50bba086bfb4ebe4482f0dd8.png", width: 100%)
 , caption: []), <fig:video-animal-present-examples-b>,
 columns: 1,
 label: <fig:video-animal-present-examples>,

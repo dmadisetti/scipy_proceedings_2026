@@ -681,6 +681,25 @@
       "doi": "10.5281/zenodo.17297885"
     },
     {
+      "title": "Accelerating scientific data releases: Automated metadata generation with LLM agents",
+      "authors": [
+        {
+          "name": "Tudor Garbulet",
+          "orcid": "0000-0002-1804-4920",
+          "affiliation": "Oak Ridge National Laboratory"
+        },
+        {
+          "name": "Chirag Shah",
+          "orcid": "0000-0002-0314-5737",
+          "affiliation": "Oak Ridge National Laboratory"
+        }
+      ],
+      "description": "The rapid growth of scientific data repositories demands innovative solutions for efficient metadata creation. In this talk, we present our open-source project that leverages large language models to automate the generation of standard-compliant metadata files from raw scientific datasets. Our approach harnesses the capabilities of pre-trained open source models, finetuned with domain-specific data, and integrated with Langgraph to orchestrate a modular, end-to-end pipeline capable of ingesting heterogeneous raw data files and outputting metadata conforming to specific standards.",
+      "zenodo_url": "https://zenodo.org/deposit/18039103",
+      "slide_id": "llm_metadata_generation",
+      "doi": "10.5281/zenodo.18039103"
+    },
+    {
       "title": "Unlocking AI Performance with NeMo Curator: Scalable Data Processing for LLMs",
       "authors": [
         {
