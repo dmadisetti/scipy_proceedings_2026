@@ -405,11 +405,26 @@ working on. Our aim is to have you and the author collaborate on making their
 better by using an iterative process.
 
 While our basic approach is to have you and the author iterate, we ask you to
-complete an initial review and start that conversation by the _Initial Complete Review_
-deadline.
+complete an initial review and start that conversation by the _Initial Complete Review_ deadline.
 
-To share your feedback with the authors, use inline comments feature in github; comment on the
-text files, e.g. `main.md`.
+Feel free to leave inline comments about any particular line or figure, and also on the overall submission.
+
+#### How to leave comments on Pull Requests in GitHub:
+
+Open the submission, link, or PR (Pull Request) assigned to you.
+
+* For overall comment(s):
+1. The PR page will bring you to the `Conversation` tab.
+2. Find `Add a comment` box at the bottom of that tab. Leave a comment.
+
+* For inline comments:
+1. Open the tab `Files Changed`.
+2. Locate a text file, for example, `main.md`
+3. To leave a comment on any of the lines, click on the `+` sign on the left side; this should open a comment box.
+4. To comment on figures, or other attachments, use the text file to leave an inline comment.
+
+For more detailed instructions [refer to this page by GitHub](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request)
+
 
 We ask that by the _Final Reviewer Decision_ deadline you have a recommendation to
 either **accept** or **reject** the paper at that point and time.
