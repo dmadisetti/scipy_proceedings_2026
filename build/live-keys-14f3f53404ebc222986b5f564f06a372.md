@@ -1,0 +1,80 @@
+---
+title: Live cache keys, derived in your browser
+short_title: Key playground
+---
+
+```{marimo-config}
+---
+echo: false
+output: true
+header: |
+  import sys, os
+  sys.path.insert(0, '/Users/dmadisetti/src/scipy_proceedings/papers/madisetti_cache')
+  os.chdir('/Users/dmadisetti/src/scipy_proceedings/papers/madisetti_cache')
+pyproject: |
+  requires-python = ">=3.12"
+  dependencies = [
+      "marimo>=0.23.8",
+      "matplotlib==3.10.9",
+      "numpy==2.4.6",
+      "diskcache==5.6.3",
+      "joblib>=1.4",
+      "pymandala>=0.2.0a0",
+      "pyarrow>=15",
+      "tqdm",
+      "prettytable",
+      "graphviz",
+      "ipython",
+  ]
+---
+```
+
+The paper's worked example, detached from the paper. The four-cell DAG below is
+compiled and hashed by marimo's real `BlockHasher` — the keys you see are the
+keys the cache would use.
+
+```
+# a · seed        # b · random input            # c · model               # d · forward pass
+seed = N           x = rng(seed).normal(64)      model = TinyNet()         y = model(x)
+```
+
+Drag the seed. `a`, `b`, and `d` re-key on every move; `c` never does — the
+model cell's only outside reference is the module-pinned `np`, so the seed is
+not among its refs. Drag back to a previous value and the keys return exactly:
+content addressing has no memory of *when* a value was last seen, only *what*
+it is.
+
+```{marimo} python
+:name: setup
+import marimo as mo
+from lib import compute
+```
+
+```{marimo} python
+:name: walked_example_slider
+walked_slider = mo.ui.slider(0, 10, value=7, label="seed")
+walked_slider
+```
+
+```{marimo} python
+:name: walked_example_live
+_walked_live = compute.compute_walked_state(walked_slider.value)
+mo.md(
+    "**Live hashes** (seed = {v}): "
+    "`H(a)={a}`, `H(b)={b}`, `H(c)={c}`, `H(d)={d}`".format(
+        v=walked_slider.value,
+        a=_walked_live["a"]["h"], b=_walked_live["b"]["h"],
+        c=_walked_live["c"]["h"], d=_walked_live["d"]["h"],
+    )
+)
+```
+
+```{marimo} python
+:name: walked_example_kinds
+mo.md(
+    "Dispatch branches: " + ", ".join(
+        f"`{cell}` → *{state['kind']}*"
+        for cell, state in compute.compute_walked_state(walked_slider.value).items()
+    )
+)
+```

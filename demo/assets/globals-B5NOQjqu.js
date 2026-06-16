@@ -1,0 +1,1 @@
+import{i as a}from"./useEvent-O0nX5vok.js";import{l,__tla as n}from"./switch-vn4osa3x.js";let e,r,m=Promise.all([(()=>{try{return n}catch{}})()]).then(async()=>{e=()=>a.get(l),r=()=>{let t=document.querySelector("marimo-code");if(!t)return;let o=t.innerHTML;return decodeURIComponent(o).trim()}});export{m as __tla,e as n,r as t};

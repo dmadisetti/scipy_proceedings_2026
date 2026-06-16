@@ -1,0 +1,1 @@
+import{u as l}from"./useEvent-O0nX5vok.js";import{r as e,__tla as s}from"./mode-CxLhsSus.js";let a,n,_=Promise.all([(()=>{try{return s}catch{}})()]).then(async()=>{n=r=>{let{children:t}=r;return l(e)?null:t},a=r=>{let{children:t}=r;return l(e)?t:null}});export{_ as __tla,a as n,n as t};
