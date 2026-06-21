@@ -1,0 +1,65 @@
+// Cache key dispatch — flat three-way fallback, top-down flow.
+// Rendered to figs/fig1_dispatch_flow.png via `make flowchart`, then
+// composed with the rasterized derivation listing (figs/alg_hash.typ)
+// into figs/fig1_dispatch.png by figs/compose_fig1.py.
+//
+// A per-ref dispatch tries three categories in order:
+//   1. Pure              — immutable primitives, hash the value directly.
+//   2. ContentAddressed  — buffer-protocol bytes, hash the buffer.
+//   3. ExecutionPath     — fall back to the producing cell's stored H.
+// All three feed the same sha256 combiner at the bottom, which
+// concatenates the per-ref keys with the cell's compiled bytecode to
+// produce H(cell).
+
+digraph dispatch {
+  rankdir = TB;
+  graph [bgcolor="transparent", fontname="serif", fontsize=11,
+         nodesep=0.25, ranksep=0.32];
+  node  [fontname="serif", fontsize=10, color="#333333", penwidth=0.9,
+         margin="0.10,0.05"];
+  edge  [fontname="serif", fontsize=9, color="#555555", arrowsize=0.7];
+
+  // ── entry ─────────────────────────────────────────────────────
+  ref [label="per ref",
+       shape=box, style="rounded,filled", fillcolor="#f5f5f5"];
+
+  // ── decisions ────────────────────────────────────────────────
+  q_pure [label="immutable?",
+          shape=diamond, style=filled, fillcolor="#e3f2fd"];
+  q_buf  [label="buffer\nprotocol?",
+          shape=diamond, style=filled, fillcolor="#e8f5e9"];
+
+  // ── three terminal categories ────────────────────────────────
+  pure [label="Pure\nsha256(value)",
+        shape=box, style="rounded,filled", fillcolor="#e3f2fd"];
+  ca   [label="ContentAddressed\nsha256(buffer)",
+        shape=box, style="rounded,filled", fillcolor="#e8f5e9"];
+  ep   [label="ExecutionPath\nH(parent)",
+        shape=box, style="rounded,filled", fillcolor="#fff3e0"];
+
+  // ── combiner + output (bottom) ───────────────────────────────
+  src     [label="cell bytecode\nsha256(bytecode)",
+           shape=box, style="rounded,filled", fillcolor="#f5f5f5"];
+  combine [label="combine keys\nsha256(src ‖ k₁ ‖ k₂ ‖ …)",
+           shape=box, style="rounded,filled", fillcolor="#fafafa"];
+  out     [label="H(cell)",
+           shape=oval, style=filled, fillcolor="#fff9c4"];
+
+  // ── flow ────────────────────────────────────────────────────
+  ref     -> q_pure;
+  q_pure  -> pure   [label="yes"];
+  q_pure  -> q_buf  [label="no"];
+  q_buf   -> ca     [label="yes"];
+  q_buf   -> ep     [label="no"];
+
+  pure -> combine;
+  ca   -> combine;
+  ep   -> combine;
+  src  -> combine;
+  combine -> out;
+
+  // decisions on the spine, terminals beside them
+  { rank=same; q_pure; pure; }
+  { rank=same; q_buf -> ca -> ep [style=invis]; }
+  { rank=same; src; combine; }
+}

@@ -1,0 +1,48 @@
+version: 1
+extends: ../papers.yml
+project:
+  # Update this to match `scipy-2026-<folder>`; the folder is `<firstname_surname>`
+  id: scipy-2026-marimo_caching
+  # Ensure your title is the same as in your `main.md`
+  title: 'Hash all the things: Caching for fast notebook restarts'
+  subtitle: Content-addressed, cell-level cache reuse in marimo
+  description: >
+    A content-addressed cache for cells in a reactive Python notebook. Hash
+    recurrence over a dataflow DAG with parent-hash substitution at unhashable
+    boundaries; lazy stub loading for typed blobs; and an empirical
+    characterization of where caching wins and where it loses (cheap-body cells
+    with large refs).
+  license: CC-BY-4.0
+  open_access: true
+  authors:
+    - name: Dylan Madisetti
+      email: dylan@marimo.io
+      orcid: 0000-0003-1269-4989
+      corresponding: true
+      affiliations:
+        - marimo
+    - name: Myles Scolnick
+      email: myles@marimo.io
+      affiliations:
+        - marimo
+    - name: Akshay Agrawal
+      email: akshay@marimo.io
+      affiliations:
+        - marimo
+  keywords:
+    - reactive notebooks
+    - content-addressed caching
+    - memoization
+    - reproducibility
+    - dataflow
+    - marimo
+    - Python
+  abbreviations:
+    DAG: Directed Acyclic Graph
+    CA: Content-Addressed
+    EP: ExecutionPath
+    CEP: ContextExecutionPath
+  # It is possible to explicitly ignore the `doi-exists` check for certain citation keys
+  error_rules:
+    - rule: doi-exists
+      severity: ignore

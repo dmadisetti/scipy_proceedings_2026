@@ -1,0 +1,635 @@
+---
+title: 'Hash all the things: Caching for fast notebook restarts'
+short_title: marimo Caching
+marimo-version: 0.23.9
+pyproject: |-
+  requires-python = ">=3.12"
+  # NB. Keep in sync with `pyproject.toml` in this directory; marimo's
+  # `--sandbox` reads from here, the standalone file serves `uv sync`
+  # and IDE tooling.
+  dependencies = [
+      # The paper evaluates the cached-execution implementation on marimo's
+      # `dm/paper-integration` branch, which is not yet on a released PyPI
+      # version. The `Makefile`'s `MARIMO_SRC` variable (default `../..`,
+      # the marimo monorepo root) is resolved to an absolute path and
+      # passed to uv via `--with`; that path overrides this fallback,
+      # so anyone with a marimo checkout can rebuild the paper. The pin
+      # below is a coarse safety net for sandbox runs that skip the
+      # Makefile; replace with `marimo @ git+https://...@<sha>` for the
+      # final proceedings build.
+      "marimo>=0.23.9",
+      "matplotlib==3.10.9",
+      "numpy==2.4.6",
+      "diskcache==5.6.3",
+      "joblib>=1.4",
+      "pymandala>=0.2.0a0",
+      "pyarrow>=15",
+      "tqdm",
+      "prettytable",
+      "graphviz",
+      "ipython",
+  ]
+---
+```{raw:typst}
+// Hide marimo cell source blocks from the PDF render.
+#show raw.where(block: true, lang: "python"): _ => none
+```
+
+```python {.marimo hide_code="true" name="setup"}
+import marimo as mo
+import numpy as np
+import matplotlib.pyplot as plt
+import platform
+import tempfile
+import diskcache
+import mandala.imports  # noqa: F401 — submodule import; cells use `mandala.imports.{Storage, op}`
+
+# Bench primitives, plot helpers, and `compute.claim(...)` used by the
+# figure cells.
+from lib import compute, save_fig
+```
+
++++ {"part": "abstract"}
+
+We describe a caching mechanism for resumable sessions in marimo, a reactive Python notebook.
+Cache keys are derived recursively from the reactive DAG, content-addressing reference values and substituting parent-cell hashes where direct content addressing is not possible.
+The recurrence forms a Merkle structure that an edit invalidates at the subtree granularity.
+Cached values cross process and session boundaries through a lazy stub mechanism and participate in marimo's static WASM/HTML export, so heavy computations and trained models can ship with a notebook to readers with a browser-embedded Python runtime.
+Empirically the cache lookup is as fast or faster than representative baselines on microbenchmarks of variably sized payloads.
+However, unlike other mechanisms, marimo's caching is native to the reactive notebook, adds little user-facing overhead in its utilization, and allows for cross platform reuse.
+
++++
+
+(sec:intro)=
+# Introduction
+
+Notebooks underpin much of scientific Python, but most of them do not survive a clean rerun.
+In a survey of 1.4 million public Jupyter notebooks, only about a quarter re-execute top-to-bottom without raising [@pimentel2019largescale].
+Jupyter serializes a record of what the author ran in the past, but is not a description of what the notebook executes.
+Traditional notebooks like Jupyter, as essentially organized REPLs (Read-Evaluate-Print loops), suffer from out-of-order execution and hidden state that are not captured in the notebook's artifacts, making reproducibility difficult.
+
+Reactive notebooks mostly address this gap by treating cells, a unit of source code, as nodes in a dataflow graph.
+From the variables a cell uses, its *references* (`refs`), and the variables it binds, its *definitions* (`defs`), cell order is determined by data dependencies rather than by source order.
+Editing a cell clears stale memory and re-executes its dependents.
+Since the dependence relation is derived from `refs` and `defs` rather than from a runtime trace, this makes hidden state difficult and out-of-order execution impossible.
+Notable reactive notebooks include Pluto.jl [@vanderplas2020pluto], Observable [@bostock2017observable], and Livebook [@valim2020livebook], while IPyflow and nbsafety [@macke2021nbsafety;@ipyflow] retrofit something close onto Jupyter through runtime dependency inference and program slicing.
+The lineage descends from a longer tradition of direct-manipulation programming environments [@victor2012inventing], in which editing the source is itself the act that updates the running program's state.
+marimo [@marimo] reinvents the reactive notebook for Python, and its cached resumption is the focus of this paper.
+
+Traditional notebooks are flexible in that only part of the notebook needs to be evaluated to repopulate memory, but a reactive notebook, which parallels a dataflow pipeline, reruns top-to-bottom by construction.
+As a consequence, unless the user conditionally guards, the reactive notebook user pays for every expensive cell on every session.
+However, since a reactive notebook already knows what each cell depends on, expensive recomputation can be avoided if the cell body were assumed to be deterministic.
+
+Caching for notebooks and Python is not new.
+IncPy modifies the CPython interpreter to memoize function calls automatically [@guo2011incpy]; knitr caches literate-document chunks with hand-declared dependency chains [@xie2015knitr]; jupyter-cache re-executes a notebook wholesale when any code cell changes [@jupytercache].
+`mandala` memoizes decorated calls inside a `with storage:` block [@makelov2024mandala], Kishu checkpoints whole sessions for time travel [@li2025kishu], ElasticNotebook migrates live state across machines [@li2024elasticnotebook], and diskcache provides a byte-keyed store at the bottom of the stack [@diskcache].
+Each asks the user to opt in at a different boundary.
+As later discussed, marimo's reactive DAG produces an implied boundary on the cell level, and removes the cognitive overhead for users.
+
+Concretely we target three properties.
+(a) Skip expensive recomputation when references and source are unchanged.
+(b) Preserve reactive determinism within a session under reordering and partial reruns.
+(c) Make cached artifacts transportable through marimo's static WASM/HTML export.
+Out of scope are full session restoration in the sense of [@li2025kishu], distributed execution, and reproducibility of arbitrary Python notebooks [@pimentel2019largescale].
+We claim deterministic reuse between notebook sessions that follow marimo's reactive principles.
+
+(sec:background)=
+# Background and Related Work
+
+Michie's memo functions [@michie1968memo] are the canonical outline of "function caching".
+A cached function skips recomputation when an input-derived key matches a stored key, returning the stored value instead.
+Caching a *cell* requires the same key to reconstruct under the same conditions, which forces the question of what a cell's "inputs" are.
+
+A reactive notebook's static derivation gives a graph that is stable across runs, and at runtime, the contents in memory.
+The key for a cached result must be a function of the graph the source defines, not of a particular execution trace, and the computed values at evaluation time.
+Cell-level dataflow tracking has an earlier antecedent in [@koop2017dataflow], and Rex [@zheng2025reactive] probes the boundaries of reactivity in marimo specifically.
+
+To build a key from a cell's refs in marimo, we look to build systems for inspiration.
+Build Systems à la Carte [@mokhov2018build] decomposes a build system into a *rebuilder* (deciding when to rerun) and a *scheduler* (deciding the rebuild order).
+marimo's caching is a content-hash rebuilder paired with a reactive scheduler, with no persistent build trace.
+We borrow the recursive-hash derivation lookup from Nix [@dolstra2004nix;@dolstra2006purely] and apply it to a reactive notebook instead of a static package graph, making marimo's caching approach closer to Nix's input-addressed model than to Shake's verifying traces.
+The data-engineering analog is Bauplan/Nessie's pipeline-stage hashing [@tagliabue2024bauplan], and workflow engines persist the same discipline at task granularity.
+Nextflow's `-resume` and Snakemake's `--cache` key results on code, parameters, and input hashes [@ditommaso2017nextflow;@molder2021snakemake].
+<!-- Beneath the systems layer, self-adjusting computation and Adapton supply the change-propagation theory that DAG memoization specializes [@acar2002adaptive;@hammer2014adapton]. -->
+
+For existing scientific-Python memoization, mandala [@makelov2024mandala], the closest analog at this venue (SciPy 2024), memoizes calls inside a `with storage:` context using `joblib.hash` for content addressing and persists call provenance.
+Additionally diskcache [@diskcache] is the byte-keyed control where content addressing is the user's responsibility, and joblib's `Memory` [@joblib], scientific Python's standard persistent memoizer, keys on pickled arguments per decorated function.
+Although there are other complementary systems, such as Kishu [@li2025kishu] and ElasticNotebook [@li2024elasticnotebook], that checkpoint and migrate notebook state, only mandala and diskcache are directly comparable to marimo's caching mechanism, and we benchmark against them in {ref}`sec:eval`.
+
+(sec:keys)=
+# Cache Key Construction
+
+For computational caching, false positive hits are unacceptable and false negatives merely undesirable.
+For a useful cache, marimo's caching requires a stable key derivation that is sensitive to value changes and robust to superficial notebook edits.
+At runtime a marimo notebook exposes a reactive DAG over its cells together with the ref values bound in memory, so a naive approach may be to construct the cache key by hashing every `ref`s' value directly.
+However, this does not survive Python's exposure of mutation and FFI.
+Pointers move under realloc, weakrefs report identity rather than content, and opaque C-extension objects expose neither a buffer nor a stable repr.
+Conversely, another candidate key construction is to hash the cell's source bytes alone.
+This method also fails, as cells with side effects like reading the filesystem, network, wall clock, would be invisible to the key, generating false positives.
+Build systems face the same dilemma and substitute the producer when the artifact is opaque [@dolstra2004nix]; marimo's cache key follows the same discipline, derived recursively over the reactive DAG.
+Each cell's key depends on (a) the cell's compiled body (bytecode rather than source text, so comments and formatting do not participate) (b) a content address for every reference the cell reads, and (c) the keys of the parent cells that own those references.
+To produce the cache lookup, the references that can be content-addressed are hashed directly, and the others are substituted with their producer's key, which is recursively derived by the same cascade.
+
+(sec:dispatch)=
+## Key dispatch
+
+:::{figure} figs/fig1_dispatch.png
+:label: fig:dispatch
+:width: 100%
+
+Cache key construction.
+Left: the per-ref dispatch, a three-way fallback into **Pure** (hash the value), **ContentAddressed** (hash the buffer), or **ExecutionPath** (substitute the producing cell's $H$); the first match emits the per-ref key, and every per-ref key feeds one sha256 combiner with the cell's compiled-body hash to produce $H(c)$.
+Right: the derivation over the full cell, abridged from `BlockHasher.__init__` (`marimo/_save/hash.py`).
+:::
+
+```python {.marimo hide_code="true" name="fig_dispatch_display"}
+mo.image("figs/fig1_dispatch.png", width="100%")
+```
+
+The key dispatch is a flat three-way fallback ({ref}`fig:dispatch`), whose right panel makes the recurrence over the full cell explicit.
+
+**Pure** cells reference nothing outside their own body; the key reduces to the hash of the compiled cell.
+**Stateful** refs are values captured by marimo's intentional notebook state, such as UI elements and `mo.state`.
+For caching to work, these values must be in a hashable form (Python primitives, frozen collections, or collections of other hashable values), and we hash them directly.
+**ContentAddressed** refs expose their bytes directly as Python primitives and frozen collections, or as buffer-protocol objects.
+These buffer-protocol objects are an important case for scientific computing and cover numpy ndarray and other objects advertising numpy's array interface.
+For these types, the content hash is derived from the contiguous buffer without serialization, an idiom borrowed from joblib [@joblib] and mandala [@makelov2024mandala].
+**ExecutionPath** refs are not themselves directly hashable but are *cell-owned*, and their contribution is captured by the hash of their upstream parent cell, recursively determined by the same dispatch.
+A fourth outcome in the listing, **ContextExecutionPath**, covers references defined in the same cell as the cached block (the code preceding a `mo.persistent_cache` context manager) whose surrounding context is folded into the key.
+The decorators `@mo.cache` / `@mo.persistent_cache` apply the same dispatch to function call arguments, resolved at call time.
+As an aside, the streamlit `cache_data` / `cache_resource` distinction [@streamlit2023caching] anticipates the data-vs-resource split that ContentAddressed and ExecutionPath resolve.
+
+## Parent-hash substitution
+
+For each cell $c$ we record a hash $H(c)$ at the end of the cell's execution.
+When a downstream cell reads a ref $r$ produced by $c$ and $r$ is not directly addressable, we substitute $H(c)$ for $r$ in the downstream key, which preserves reactive granularity and corresponds to the `ExecutionPath` branch in {ref}`fig:dispatch`.
+The downstream key invalidates exactly when the producing cell's key invalidates, which is exactly when the reactive scheduler would re-run the downstream cell.
+We do not require every value to be hashable in itself, only that its producing cell be hashable.
+The substitution is a special case of Hughes's lazy memo function model [@hughes1985lazy], where equality is by stored location rather than by deep value.
+
+The recurrence builds a Merkle DAG [@merkle1988protocols] over the notebook.
+Each cell's hash commits to the hashes of its parents, so an edit to one cell invalidates exactly the subtree it dominates.
+As a result, the rebuilder has a $O(|\text{changed subtree}|)$ rehash cost since we never re-derive a cell's hash if neither the inputs nor the cell body changed.
+
+{ref}`fig:walked` visualizes the recurrence on a four-cell PyTorch DAG codified below.
+The slider seeds a random input tensor, a model is constructed independently, and the forward pass binds them.
+Each branch of the key calculation is exercised.
+`a` is Pure, `b` is ContentAddressed via the tensor's buffer, and `c` and `d` substitute `H(parent)` for the unhashable `nn.Module` called `TinyNet`.
+
+```{raw:typst}
+#text(size: 8.5pt)[#raw(lang: "pseudo", block: true,
+"# a · seed        # b · random input            # c · model               # d · forward pass
+seed = 7           x = rng(seed).normal(64)      model = TinyNet()         y = model(x)")]
+```
+
+```python {.marimo hide_code="true" name="walked_example_slider"}
+# Interactive slider — drives the seed of the live exploration
+# below. In a rendered PDF this widget is inert; the multi-panel
+# figure that follows shows three fixed seeds.
+walked_slider = mo.ui.slider(0, 10, value=7, label="seed")
+walked_slider
+```
+
+```python {.marimo hide_code="true" name="walked_example_live"}
+# Live, slider-driven hash readout, keyed by marimo's real
+# BlockHasher on the compiled four-cell graph. Re-evaluates
+# reactively every time `walked_slider.value` changes.
+_walked_live = compute.compute_walked_state(walked_slider.value)
+mo.md(
+    "**Live hashes** (seed = {v}): "
+    "`H(a)={a}`, `H(b)={b}`, `H(c)={c}`, `H(d)={d}`".format(
+        v=walked_slider.value,
+        a=_walked_live["a"]["h"], b=_walked_live["b"]["h"],
+        c=_walked_live["c"]["h"], d=_walked_live["d"]["h"],
+    )
+)
+```
+
+```python {.marimo hide_code="true" name="fig_walked_example"}
+def walked_example_figure():
+    # Three fixed seeds tell the story of the recurrence: initial
+    # fill, cascading invalidation, idempotent rerun. Every hash and
+    # branch label is produced by marimo's real BlockHasher over a
+    # real compiled cell graph (compute.WALKED_SOURCES) — nothing in
+    # this figure is simulated.
+    seeds = (3, 7, 7)
+    titles = (
+        r"$t_0$: seed = 3 (initial)",
+        r"$t_1$: seed = 7 (leaf changed)",
+        r"$t_2$: seed = 7 (idempotent)",
+    )
+    states = [compute.compute_walked_state(s) for s in seeds]
+
+    # Smoke claim: invalidation propagates a → b → d, leaves c (model)
+    # alone, and an idempotent rerun changes nothing.
+    assert states[0]["a"]["h"] != states[1]["a"]["h"], compute.claim(
+        "seed hash changes when value moves", states=states)
+    assert states[1]["b"]["h"] != states[0]["b"]["h"], compute.claim(
+        "array hash cascades when seed changes", states=states)
+    assert states[1]["d"]["h"] != states[0]["d"]["h"], compute.claim(
+        "forward-pass hash cascades through the array", states=states)
+    assert states[1]["c"]["h"] == states[0]["c"]["h"], compute.claim(
+        "model hash is independent of the seed", states=states)
+    assert states[2] == states[1], compute.claim(
+        "idempotent rerun leaves every hash fixed", states=states)
+
+    # Invariance battery: every robustness and boundary property
+    # quoted in the prose is re-measured against the real hasher on
+    # every build of this figure.
+    inv = compute.hash_invariance_report()
+    assert all(inv.values()), compute.claim(
+        "hash invariance battery holds", **inv)
+
+    fig = compute.plot_walked_example(states, titles)
+    save_fig(fig, "fig2_walked_example")
+    return fig
+```
+
+:::{figure} figs/fig2_walked_example.png
+:label: fig:walked
+:width: 100%
+
+Worked example of the recurrence on the four-cell DAG codified above.
+Every hash and branch label is emitted by marimo's hasher over a compiled cell graph at render time.
+Moving the seed ($t_0 \to t_1$) invalidates `a`, `b`, and `d` (red edges); `c` stays cached because the seed is not among its refs.
+Re-rendering with the same seed ($t_1 \to t_2$) leaves every hash fixed (green edges) and the rebuilder reuses every result.
+The italic label under each box names the cascade branch the cell exercises.
+:::
+
+(sec:storage)=
+# Storage and Loading
+
+Cache keys identify values, but a notebook does not always need the value until performing new computations or renderings.
+For instance, a downstream cell may take a reference and forward it to a third cell without inspecting it.
+Storage and loading are therefore decoupled from lookup.
+The default `PickleLoader` in marimo serializes the full `Cache` envelope as one pickle blob, re-materializing every `def` eagerly on lookup.
+
+The newer, opt-in mechanism, the `LazyLoader` writes a JSON manifest of per-def references alongside individual blob files.
+The advantage of the lazy loader is that values can be hydrated on demand through a stub mechanism.
+The lazy loader will defer loading a value until it is needed for a computation or rendering.
+The store exposes a single `ReferenceStub` protocol with one `load()` method and codec-specific subclasses for pickle, joblib, numpy `.npy`, and Arrow.
+The value is deserialized on the stub's first access.
+
+(sec:wasm)=
+## WASM portability
+
+Cache artifacts can also be computed for marimo's static HTML/Pyodide WASM bundle exports.
+Exporting with `marimo wasm-html --execute` bundles the resulting manifests and blobs into a standalone html dump.
+Opening this content in the reader's browser re-derives the same keys and rehydrates each value on first access, exactly as in an interactive session.
+Scientific articles (such as this one), general-audience blog posts, and educational materials benefit from this by shipping heavy computations and trained models with the notebook to readers with a browser-embedded Python runtime.
+
+The export ships only the values and user code that produced them, not external libraries.
+However, a cell may still depend on packages the browser cannot import, as long as the values it defines serialize to a portable codec.
+As a demonstration (a live export is published at <https://dmadisetti.github.io/scipy_proceedings/demo/>), the export host trains a PyTorch model, exports it to ONNX bytes behind a small runtime wrapper, and slices a prediction sweep into numpy arrays.
+In the browser, where `import torch` is currently not possible, the arrays and the wrapper restore through their codecs, and a custom stub rebinds the ONNX bytes to `onnxruntime-web`.
+
+(sec:eval)=
+# Evaluation
+
+In terms of performance, caching is a conditional win.
+The cache pays a fixed performance overhead on every hit (key derivation plus value load).
+If the goal of caching is portability and provenance rather than speed, then the time penalty is inconsequential.
+However, if the goal is to skip expensive recomputation, then the cache must pay back its overhead by avoiding a more expensive cell body.
+Although not currently implemented, a future extension of the cache could track hit rates and accumulated savings over time to make that tradeoff explicit, skipping the cache when it would be a net performance loss.
+
+We validate the implementation by measuring three cost components (key derivation, value load, value save) separately and as end-to-end hit and miss paths on numpy `float64` payloads from 1 MB to 500 MB, bracketed by representative baselines: mandala's decorated-function memoization and diskcache's byte-keyed store (the no-derivation floor).
+
+(sec:e2e)=
+## End-to-end cache evaluation
+
+Notebook users observe the wall time from "edit upstream" to "downstream value bound in Python."
+Panel (a) of {ref}`fig:cache-eval` reports that composite metric across six strategies.
+All cluster up to roughly 49 MB.
+The 100 ms dashed line marks the threshold below which a response reads as instantaneous [@card1991information] and every persistent method holds it across typical exploratory payloads.
+
+The dotted curve in panel (a) prices the miss path.
+With hit rate $p$, caching pays when the cell body costs more than $T_{hit} + \frac{1-p}{p}\,(T_{key} + T_{save})$.
+Because the measured miss overhead is comparable to the hit cost on these payloads, the break-even body cost at $p = 0.9$ rides roughly 10% above the hit curve.
+
+Panel (b) decomposes the largest-payload hit into key derivation and value load, alongside the overhead a miss adds (key derivation and value save).
+mandala derives its key via `joblib.hash`, which serializes through pickle before hashing [@makelov2024mandala]; marimo's `data_to_buffer` views the ndarray's contiguous bytes through Python's buffer protocol and hashes them directly.
+On the Apple M4 Max used for the camera-ready figures, hashing is fast and the pickle pass costs mandala roughly 3× end to end; on a Linux x86-64 server, memory bandwidth makes the pickle pass nearly free, value load dominates instead, and the penalty compresses to roughly 1.2×.
+marimo's value load tracks the `diskcache (fixed key)` floor, isolating the structural gap in key derivation rather than storage.
+Panel (c) exposes per-call variance.
+
+
+```python {.marimo hide_code="true" name="fig_cache_eval"}
+def _e2e_setup():
+    """Wire every cache backend once and return ``(methods, cleanup)``.
+
+    ``methods`` is ``{name: bind}``. ``bind(payload)`` does per-payload
+    preparation (warm a cache, set a byte-key, prime a memoize wrapper)
+    and returns the 0-arg callable the sweep will time. Setup does NO
+    measurement — that's owned by ``compute.sweep_methods_samples`` so
+    all timing lives in one place.
+
+    ``cleanup()`` runs once after the sweep finishes. We use it to
+    `__exit__` the mandala storage so its SQLite connection closes and
+    to `rmtree` every temporary cache directory (the persistent caches
+    can grow to several GB across a sweep).
+
+    Has to live in the cell (not in ``compute.py``) so ``mo.cache`` /
+    ``mo.persistent_cache`` capture the marimo runtime context.
+    """
+    import shutil
+    pickle_dir = tempfile.mkdtemp()
+    lazy_dir   = tempfile.mkdtemp()
+    md_dir     = tempfile.mkdtemp()
+
+    mo_cache_fn = mo.cache(compute.identity)
+    mo_pickle_fn = mo.persistent_cache(
+        save_path=pickle_dir, method="pickle",
+    )(compute.identity)
+    mo_lazy_fn = mo.persistent_cache(
+        save_path=lazy_dir, method="lazy",
+    )(compute.identity)
+
+    md_storage = mandala.imports.Storage(
+        db_path=f"{md_dir}/db.sqlite",
+        overflow_dir=md_dir,
+        overflow_threshold_MB=0,
+    )
+    md_identity = mandala.imports.op(compute.identity)
+    # Activate the storage for the bench's lifetime. mandala's
+    # context manager calls `commit()` (heavy fsync) on `__exit__`,
+    # so per-call `with md_storage:` would dominate the timing.
+    # We enter here and let `cleanup()` exit at sweep end.
+    md_storage.__enter__()
+
+    def bind_mandala(payload):
+        md_identity(payload)  # warm
+        def hit():
+            return md_storage.unwrap(md_identity(payload))
+        return hit
+
+    def cleanup():
+        # Close the SQLite handle first, then wipe every persistent
+        # cache directory we allocated. Each holds the per-payload
+        # ndarrays from the sweep — left behind, they accumulate
+        # across reruns and exhaust /tmp.
+        try:
+            md_storage.__exit__(None, None, None)
+        finally:
+            for d in (pickle_dir, lazy_dir, md_dir):
+                shutil.rmtree(d, ignore_errors=True)
+
+    methods = {
+        "mo.cache":                   compute.bind_warm(mo_cache_fn),
+        "mo.persistent_cache":        compute.bind_warm(mo_pickle_fn),
+        "mo.persistent_cache (lazy)": compute.bind_warm(mo_lazy_fn),
+        "mandala":                    bind_mandala,
+        "diskcache.memoize":          compute.bind_diskcache_memoize,
+        "diskcache (fixed key)":      compute.bind_diskcache_fixed,
+    }
+    return methods, cleanup
+
+
+# Bench-key components folded into every cached measurement: a host
+# fingerprint (system + arch + Python version) and a methodology
+# version string. Bumping `_BENCH_VERSION` invalidates every persisted
+# sweep on every host, which is the right move whenever `_e2e_setup`,
+# `compute.measure_hit`, `compute.measure_miss`, codec choices, or
+# payload generation change. Without this, `@mo.persistent_cache`
+# would key only on `sizes_mb` and silently reuse cross-host or
+# pre-edit measurements.
+_HOST_FINGERPRINT = (
+    f"{platform.system()}|{platform.machine()}|"
+    f"{platform.python_implementation()}|{platform.python_version()}"
+)
+_BENCH_VERSION = "2026-06-miss-overhead-and-cold-timing"
+
+
+@mo.persistent_cache
+def _e2e_sweep(sizes_mb, host=_HOST_FINGERPRINT, version=_BENCH_VERSION):
+    # Times its own cold cost, so the figure can quote what the cache
+    # saves on reopening this very notebook (the paper's own sweep is
+    # the realistic workload the cache was built for).
+    del host, version  # consumed by the cache key only
+    import time
+    _t0 = time.perf_counter()
+    rows = compute.sweep_methods_samples(sizes_mb, _e2e_setup)
+    return {"rows": rows, "cold_s": time.perf_counter() - _t0}
+
+
+@mo.persistent_cache
+def _stage_breakdown(size_mb, host=_HOST_FINGERPRINT, version=_BENCH_VERSION):
+    # One-size primitive measurement so we can decompose cache-hit time
+    # into key derivation and value load at the figure's largest
+    # payload. The e2e sweep only times totals.
+    del host, version
+    return compute.measure_hit(compute.random_payload(size_mb))
+
+
+@mo.persistent_cache
+def _miss_breakdown(size_mb, host=_HOST_FINGERPRINT, version=_BENCH_VERSION):
+    # Write-path mirror of `_stage_breakdown`: the key + save overhead
+    # a miss adds on top of the cell body it had to run anyway.
+    del host, version
+    return compute.measure_miss(compute.random_payload(size_mb), runs=5)
+
+
+@mo.persistent_cache
+def _miss_sweep(sizes_mb, host=_HOST_FINGERPRINT, version=_BENCH_VERSION):
+    # Total miss overhead (key + save) per size, for the break-even
+    # curve in panel (a).
+    del host, version
+    return compute.sweep_write_overhead(sizes_mb)
+
+
+def cache_eval():
+    import time
+
+    # Capped at 500 MB so the in-memory mo.cache series doesn't retain
+    # the cumulative payloads across the sweep — past ~500 MB it pushes
+    # commodity laptops into swap. The interactive threshold crossing is
+    # already visible by this point.
+    sizes_mb = (1, 10, 50, 100, 200, 500)
+    _t0 = time.perf_counter()
+    _sweep = _e2e_sweep(sizes_mb)
+    _first_ms = (time.perf_counter() - _t0) * 1000
+    rows, sweep_cold_s = _sweep["rows"], _sweep["cold_s"]
+    # Self-demonstration: this notebook is its own workload. In a warm
+    # session the first call above is a real cache hit and its timing
+    # is the honest per-session rebind cost; in the cold session that
+    # just measured the sweep, fall back to the median of further hits.
+    if _first_ms < 0.5 * sweep_cold_s * 1000:
+        sweep_warm_ms = _first_ms
+    else:
+        _warm = []
+        for _ in range(3):
+            _t0 = time.perf_counter()
+            _e2e_sweep(sizes_mb)
+            _warm.append((time.perf_counter() - _t0) * 1000)
+        sweep_warm_ms = float(np.median(_warm))
+
+    median_rows = compute.medians_from_samples_rows(rows)
+    sizes_arr, e2e = compute.sweep_pivot(median_rows)
+    threshold_ms = 100.0
+
+    # Surface payload-size ceilings (largest size at which each
+    # persistent method still beats the interactive threshold) for
+    # prose to quote.
+    def below_threshold_ceiling_mb(series):
+        below = sizes_arr[series < threshold_ms]
+        return float(below.max()) if below.size else float("nan")
+
+    mp = e2e["mo.persistent_cache"]
+    mp_lazy = e2e["mo.persistent_cache (lazy)"]
+    interactive_ceiling_mb = {
+        "mo.persistent_cache":        below_threshold_ceiling_mb(mp),
+        "mo.persistent_cache (lazy)": below_threshold_ceiling_mb(mp_lazy),
+    }
+    assert any(c == c for c in interactive_ceiling_mb.values()), compute.claim(
+        f"some mo.persistent_cache variant beats {threshold_ms:g} ms at some size",
+        sizes_mb=sizes_arr,
+        mo_persistent_cache_ms=mp,
+        mo_persistent_cache_lazy_ms=mp_lazy,
+    )
+
+    # Abstract claim, asserted structurally: marimo at or below mandala
+    # within measurement noise at every size where both survive (sub-ms
+    # ties at small payloads flip under load — observed once on a loaded
+    # build), and strictly faster at the largest payload, where the
+    # pickle-pass gap is the claim.
+    ma = e2e["mandala"]
+    _both = ~(np.isnan(ma) | np.isnan(mp))
+    assert (mp[_both] <= 1.10 * ma[_both]).all(), compute.claim(
+        "marimo cache hit within noise of mandala at every measured size",
+        sizes_mb=sizes_arr, mandala_ms=ma, mo_persistent_cache_ms=mp,
+    )
+    assert mp[_both][-1] < ma[_both][-1], compute.claim(
+        "marimo cache hit strictly beats mandala at the largest payload",
+        sizes_mb=sizes_arr, mandala_ms=ma, mo_persistent_cache_ms=mp,
+    )
+
+    # Miss overhead and the break-even body cost. Caching pays at hit
+    # rate p when body > hit + (1-p)/p * (key + save); we plot p = 0.9.
+    _wrows = _miss_sweep(sizes_mb)
+    _, miss_total = compute.sweep_pivot(
+        [{"size_mb": r["size_mb"], "method": r["method"], "ms": r["ms"]}
+         for r in _wrows])
+    p_hit = 0.9
+    breakeven_ms = mp + (1 - p_hit) / p_hit * miss_total["mo.persistent_cache"]
+
+    # Stage decomposition at the largest e2e payload — hit (key + load)
+    # and miss (key + save) measured on the real disk-backed paths.
+    box_size_mb = float(max(sizes_mb))
+    stage_rows = [{**r, "size_mb": box_size_mb} for r in _stage_breakdown(box_size_mb)]
+    stage = compute.stage_decomposition_at(stage_rows, box_size_mb)
+    miss_rows = [{**r, "size_mb": box_size_mb} for r in _miss_breakdown(box_size_mb)]
+    miss_stage = compute.stage_decomposition_at(miss_rows, box_size_mb)
+
+    # Structural claim: mandala's end-to-end hit is slower than
+    # mo.persistent_cache at every payload (asserted above). The
+    # magnitude is strongly host-dependent — sha256 vs pickle
+    # throughput — so the label carries this build's e2e ratio at
+    # the largest size where both survive.
+    if _both.any():
+        mandala_slowdown_x = round(
+            float(ma[_both][-1] / mp[_both][-1]), 1)
+    else:
+        mandala_slowdown_x = float("nan")
+
+    # Observed (not asserted): on most builds diskcache.memoize hits its
+    # SQLite blob ceiling somewhere in the sweep.
+    memoize_ms = e2e.get("diskcache.memoize", np.full(len(sizes_arr), np.nan))
+    fail_mask = np.isnan(memoize_ms)
+    memoize_fail_threshold_mb = (
+        float(sizes_arr[fail_mask].min()) if fail_mask.any() else float("nan")
+    )
+
+    host_label = (
+        f"host: {platform.system()} {platform.machine()} "
+        f"({platform.python_implementation()} {platform.python_version()}); "
+        f"mandala/mo ratio: {mandala_slowdown_x}x; "
+        f"this figure's sweep: {sweep_cold_s:.0f} s cold, "
+        f"{sweep_warm_ms:.1f} ms cached"
+    )
+
+    samples_at_box = compute.samples_at_size(rows, box_size_mb)
+    fig = plt.figure(figsize=(8.0, 5.4))
+    gs = fig.add_gridspec(2, 2, height_ratios=[1.3, 1.0],
+                          hspace=0.55, wspace=0.30)
+    ax_a = fig.add_subplot(gs[0, :])
+    ax_b = fig.add_subplot(gs[1, 0])
+    ax_c = fig.add_subplot(gs[1, 1])
+    compute.plot_e2e(ax_a, e2e, sizes_arr, threshold_ms=threshold_ms,
+                     host_label=host_label)
+    _fin = ~np.isnan(breakeven_ms)
+    ax_a.loglog(sizes_arr[_fin], breakeven_ms[_fin], ls=":", lw=1.6,
+                color="#1f77b4", alpha=0.9,
+                label="break-even body cost (90% hit rate)")
+    ax_a.legend(loc="upper left", fontsize=6.5)
+    compute.plot_stage_decomposition(
+        ax_b, stage, miss_ms=miss_stage,
+        title=f"(b) Hit vs miss decomposition at {box_size_mb:.0f} MB",
+    )
+    compute.plot_e2e_box(
+        ax_c, samples_at_box,
+        title=f"(c) Per-call distribution at {box_size_mb:.0f} MB",
+    )
+    save_fig(fig, "fig3_cache_eval")
+    return fig
+
+
+cache_eval()
+```
+
+:::{figure} figs/fig3_cache_eval.png
+:label: fig:cache-eval
+:width: 100%
+
+End-to-end cache evaluation on numpy `float64` payloads.
+(a) Cache-hit latency vs payload size, log-log; the 100 ms dashed line marks the interactive threshold [@card1991information], the dotted curve the break-even body cost at a 90% hit rate.
+(b) Hit (key derivation + value load) and miss (key derivation + value save) decomposition at the largest sweep size, on the real disk-backed paths.
+(c) Per-method distribution of cache-hit samples at the largest size; `diskcache.memoize` fails outright past its SQLite blob ceiling, and failed sizes drop out of the plot.
+The host label carries the build host, the mandala/marimo ratio, and the cold-vs-cached cost of the figure's own sweep.
+:::
+
+The camera-ready version of this paper is evaluated on a MacBook Pro with an Apple M4 Max, and the figure caption carries the per-host ratio so that any reproduction shows its own number.
+The stage-decomposition measurement times the real disk-backed paths on both sides, exercising `PickleLoader.load_cache` and `LazyLoader.load_cache` for marimo and `joblib.load` on a temp-file blob for mandala, so the load comparison includes the page-cache and envelope-reconstruction costs that a primitive `pickle.loads` skips.
+
+
+(sec:limitations)=
+# Limitations and Discussion
+
+There are some notable limitations to this methodology, this is a non-exhaustive list of the most salient ones.
+(1) Library versions do not enter the key unless `pin_modules=True`, so an environment upgrade can serve stale hits; the portable WASM export must accept this gap, since pinning would bind keys to the export host;
+(2) mutable refs that bypass the DAG — alias mutation through a closure, attribute writes on a non-addressable object — can still poison downstream cells; the invariance battery measures exactly this undetectable false positive (Rex [@zheng2025reactive] probes the same boundary);
+(3) Cache tampering is possible under the current scheme: since unpickling can lead to arbitrary code execution, loading from a poisoned cache could execute a malicious payload;
+(4) The cache is mostly blind to side effects (file reads, network calls, wall-clock queries). However, a methodology to track side effects is implemented by folding back an associated side-effect value as a handle whose result contributes to the cell-level hash as if it were an external reference.
+Two constructors are currently provided, `mo.watch.file` and `mo.watch.directory`, keyed on content and listing; randomness or wall-clock time could bind to similar lifetime-managed handles.
+
+These limitations are not fundamental to the approach, and future work could address them by extending the key construction with additional branches in the dispatch.
+
+(sec:future-work)=
+# Future work
+Three lines follow from the measured boundaries.
+*Cost-aware policy*: with the write path measured, the break-even rule can run online — refuse to cache bodies cheaper than their own overhead, and track realized savings per cell.
+*Expanded Side-effects*: creating `mo.random`, `mo.request`, and `mo.clock` would all be relatively easy extensions to the API, but the surface-area trade-off of tracking more side effects is an open question.
+*Richer codecs*: landing the measured `.pt` tensor codec and a `pyarrow.Table` Arrow path, plus persistent cell-result reuse for agentic workflows driving long-running sessions [@manz2026beyond].
+*Cache poisoning mitigation*: the lazy cache could export an Ed25519-signed result and check each blob against its signed SHA-256 *before* it is deserialized, requiring a chain of trust from the export host to the reader's session.
+Storage policy (eviction, per-codec footprint) and provenance-aligned cross-session memoization [@pimentel2017noworkflow] remain open.
+
+(sec:conclusion)=
+# Conclusion
+
+<!--
+Concretely we target three properties.
+(a) Skip expensive recomputation when references and source are unchanged.
+(b) Preserve reactive determinism within a session under reordering and partial reruns.
+(c) Make cached artifacts transportable through marimo's static WASM/HTML export.
+-->
+
+We have presented a computational caching mechanism for marimo, a reactive notebook system, that builds cache keys from the compiled cell body and the content-addressed values of its references, with a fallback to parent-cell hashes for unhashable references.
+This approach preserves reactive determinism, survives superficial edits, and supports portable exports.
+Moreover, it's performant and provides a practical speedup for users executing expensive computations.
+Our evaluation demonstrates that marimo's caching mechanism is comparable to scientific-Python memoization approaches, but has the benefit of requiring no additional user effort.
+Finally, we demonstrate that the caching mechanism is portable to static HTML/Pyodide WASM exports, allowing users to share notebooks with precomputed results and models, as shown by the live export published at <https://dmadisetti.github.io/scipy_proceedings/demo/>.
+
+## Acknowledgments
+
+Portions of this work were assisted by a generative AI tool (Claude, Anthropic). Claude was used to help develop and run the benchmark harness reported in the Evaluation. All benchmark code and results were reviewed, verified, and revised by the authors, who take full responsibility for the accuracy and integrity of the final content.
+
+
+% --- Bibliography is rendered by mystmd from references.bib ---
