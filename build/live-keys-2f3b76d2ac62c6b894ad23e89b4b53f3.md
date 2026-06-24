@@ -9,8 +9,8 @@ echo: false
 output: true
 header: |
   import sys, os
-  sys.path.insert(0, '/private/tmp/scipy-pub/papers/madisetti_cache')
-  os.chdir('/private/tmp/scipy-pub/papers/madisetti_cache')
+  sys.path.insert(0, '/Users/dmadisetti/src/scipy_proceedings/papers/madisetti_cache')
+  os.chdir('/Users/dmadisetti/src/scipy_proceedings/papers/madisetti_cache')
 pyproject: |
   requires-python = ">=3.12"
   dependencies = [

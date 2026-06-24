@@ -1,1 +1,1 @@
-import{a}from"/scipy_proceedings/build/_shared/chunk-X3K5S67S.js";import"/scipy_proceedings/build/_shared/chunk-KPSTTWTG.js";import"/scipy_proceedings/build/_shared/chunk-OZE3FFNP.js";export default a();
+import{a}from"/scipy_proceedings_2026/build/_shared/chunk-X3K5S67S.js";import"/scipy_proceedings_2026/build/_shared/chunk-KPSTTWTG.js";import"/scipy_proceedings_2026/build/_shared/chunk-OZE3FFNP.js";export default a();
