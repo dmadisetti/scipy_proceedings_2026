@@ -44,8 +44,9 @@ from marimo._save.stores.file import FileStore
 
 # ---- Constants --------------------------------------------------------------
 
-WARMUP_RUNS = 3
-BENCH_RUNS = 20
+# Fixed run count for every timed measurement (hit sweep, decomposition,
+# and miss). One warmup call precedes these in `samples_ms`.
+BENCH_RUNS = 10
 
 # Lift diskcache's 1 GB default so only `memoize`'s SQLite blob
 # ceiling causes a method to fall out of the comparison.
@@ -120,16 +121,6 @@ def median_ms(fn: Callable[[], Any], runs: int,
               settle_s: float = 0.0) -> float:
     """Median wall-clock (ms) of ``fn()`` over ``runs``."""
     return float(np.median(samples_ms(fn, runs, settle_s)))
-
-
-def runs_for(size_mb: float) -> int:
-    """Adaptive run count — fewer iterations at multi-GB sizes."""
-    if size_mb <= 1:    return 30
-    if size_mb <= 10:   return 15
-    if size_mb <= 50:   return 8
-    if size_mb <= 250:  return 4
-    if size_mb <= 1000: return 3
-    return 2
 
 
 def random_payload(size_mb: float) -> np.ndarray:
@@ -211,7 +202,7 @@ def _measure_marimo_lazy_load(payload, fallback_ms: float, runs: int) -> float:
         return fallback_ms
     tmp = tempfile.mkdtemp()
     try:
-        loader = LazyLoader("bench-lazy", store=LazyStore(save_path=tmp))
+        loader = LazyLoader("bench-lazy", store=LazyStore(FileStore(save_path=tmp)))
         if not loader.save_cache(_bench_cache(payload)):
             return float("nan")
         loader.flush()  # let background writer threads finish before reads
@@ -342,7 +333,7 @@ def _median_save_ms(
     return float(np.median(times))
 
 
-def measure_miss(payload: Any, runs: int = 5) -> list[dict]:
+def measure_miss(payload: Any, runs: int = BENCH_RUNS) -> list[dict]:
     """Decompose cache-miss overhead per method into key + save (ms).
 
     Returns `{method, stage, ms}` rows shaped exactly like
@@ -359,7 +350,7 @@ def measure_miss(payload: Any, runs: int = 5) -> list[dict]:
         assert loader.save_cache(_bench_cache(payload))
 
     def save_lazy(d: str) -> None:
-        loader = LazyLoader("bench", store=LazyStore(save_path=d))
+        loader = LazyLoader("bench", store=LazyStore(FileStore(save_path=d)))
         assert loader.save_cache(_bench_cache(payload))
         loader.flush()  # charge the background writers to the save
 
@@ -395,7 +386,7 @@ def measure_miss(payload: Any, runs: int = 5) -> list[dict]:
 
 
 def sweep_write_overhead(
-    sizes_mb: tuple[float, ...], runs: int = 3,
+    sizes_mb: tuple[float, ...],
 ) -> list[dict]:
     """Total miss overhead (key + save, ms) per (size, method).
 
@@ -405,7 +396,7 @@ def sweep_write_overhead(
     rows: list[dict] = []
     for s in sizes_mb:
         payload = random_payload(s)
-        for r in measure_miss(payload, runs=max(runs, runs_for(s) // 4)):
+        for r in measure_miss(payload):
             rows.append({"size_mb": s, "method": r["method"],
                          "stage": r["stage"], "ms": r["ms"]})
         del payload
@@ -510,7 +501,6 @@ def sweep_methods_samples(
     setup_methods: Callable[[], Any],
     *,
     settle_s: float = LAZY_SETTLE_S,
-    min_runs: int = 5,
 ) -> list[dict]:
     """End-to-end sweep returning raw samples per (size, method).
 
@@ -541,7 +531,7 @@ def sweep_methods_samples(
     try:
         for s in sizes_mb:
             payload = random_payload(s)
-            runs = max(min_runs, runs_for(s) // 2)
+            runs = BENCH_RUNS
             for name, bind in methods.items():
                 try:
                     hit = bind(payload)
@@ -721,11 +711,13 @@ def plot_e2e(
             markersize=4, lw=1.2,
         )
     ax.axhline(threshold_ms, ls="--", color="gray", lw=0.8, alpha=0.6)
-    # Right-aligned so the legend (upper left) cannot occlude it.
+    # Sit the label in the clear gap just above the line — centered on the
+    # geometric-mid payload, right of the upper-left legend and left of where
+    # the curves cross the threshold on the right, so it never overlaps either.
     ax.text(
-        sizes_mb.max(), threshold_ms * 1.15,
+        float(np.sqrt(sizes_mb.min() * sizes_mb.max())), threshold_ms * 1.25,
         f"{threshold_ms:.0f} ms interactive threshold",
-        fontsize=7, color="gray", style="italic", ha="right",
+        fontsize=7, color="gray", style="italic", ha="center", va="bottom",
     )
     ax.set_xlabel("Payload size (MB)")
     ax.set_ylabel("Cache-hit latency (ms)")

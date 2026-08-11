@@ -21,14 +21,32 @@ project:
       corresponding: true
       affiliations:
         - marimo
+      roles:
+        - Conceptualization
+        - Methodology
+        - Software
+        - Investigation
+        - Validation
+        - Visualization
+        - Writing – original draft
     - name: Myles Scolnick
       email: myles@marimo.io
+      orcid: 0009-0003-4254-9632
       affiliations:
         - marimo
+      roles:
+        - Software
+        - Conceptualization
+        - Writing – review & editing
     - name: Akshay Agrawal
       email: akshay@marimo.io
+      orcid: 0009-0004-6472-0055
       affiliations:
         - marimo
+      roles:
+        - Software
+        - Conceptualization
+        - Writing – review & editing
   keywords:
     - reactive notebooks
     - content-addressed caching
@@ -46,3 +64,17 @@ project:
   error_rules:
     - rule: doi-exists
       severity: ignore
+      keys:
+        - vanderplas2020pluto
+        - bostock2017observable
+        - valim2020livebook
+        - ipyflow
+        - victor2012inventing
+        - jupytercache
+        - diskcache
+        - koop2017dataflow
+        - dolstra2004nix
+        - dolstra2006purely
+        - joblib
+        - streamlit2023caching
+        - manz2026beyond
