@@ -90,7 +90,8 @@ The caching mechanism we propose, and whose implementation we share, was designe
 * Make cached artifacts transportable through marimo's static WASM/HTML export.
 
 Out of scope are full session restoration in the sense of Kishu [@li2025kishu], distributed execution, and reproducibility of arbitrary Python notebooks [@pimentel2019largescale].
-Our contribution is deterministic reuse between potentially cross-platform notebook sessions that follow marimo's reactive principles.
+Our contribution is deterministic reuse between notebook sessions that follow marimo's reactive principles.
+The static browser export additionally makes cached results available to readers running the notebook through WebAssembly.
 
 (sec:background)=
 # Background and Related Work
@@ -140,58 +141,55 @@ Other notable work includes Kishu [@li2025kishu] and ElasticNotebook [@li2024ela
 (sec:keys)=
 # Cache Keys
 
-In computational caching, a false positive — restoring a value that the code would not have produced — is unacceptable.
-A false negative — failing to find a stored value and recomputing it — merely wastes time and is acceptable because the user can understand the caching criteria.
-The key derivation must therefore change whenever a value the cell reads changes, and it should not change under superficial edits such as reformatting or comment changes.
+In computational caching, a false positive (restoring a value that the code would not have produced) is unacceptable.
+A false negative (failing to find a stored value and recomputing it) wastes time but does not return an incorrect result.
+The key derivation must therefore change whenever a value the cell reads changes, but remain stable under superficial edits such as reformatting or comment changes.
 
 Consider two obvious ways to derive a key.
-The first is to hash the value of every reference the cell reads.
-A marimo notebook could attempt this, since at runtime it exposes both the dataflow graph and the reference values bound in memory.
-This derivation fails because some Python values expose nothing stable to hash.
-An object's memory address is neither stable nor meaningful as an identity;
-weak references report which object they point to, not what it contains;
-opaque C-extension objects expose neither their underlying bytes nor a stable text representation.
-The second derivation is to hash the cell's source bytes alone.
-This fails in the opposite way: the key is computable but does not change with the cell's inputs, producing the false positives ruled out above.
-It misses inputs that arrive through side effects such as the filesystem, the network, or the wall clock.
+The first derivation hashes the value of every reference the cell reads.
+A marimo notebook can attempt this because, at runtime, it exposes both the dataflow graph and the reference values bound in memory.
+This derivation fails for Python values that expose nothing stable to hash.
+An object's memory address is neither stable nor meaningful as an identity.
+A weak reference identifies an object rather than its contents.
+An opaque C-extension object exposes neither its underlying bytes nor a stable text representation.
+The second derivation hashes the cell's source bytes alone.
+This key is computable, but it does not change when the cell's reference values change and can therefore produce false positives.
 
-marimo combines the two derivations: a value that can be hashed is hashed, and a value that cannot is identified by the code that produced it.
-Each derivation covers the other's failure: the first keeps the key sensitive to inputs and the second keeps it computable.
-Build systems handle unhashable artifacts the same way: an artifact that exposes no content to hash is identified by the build step that produced it [@dolstra2004nix].
-marimo applies this idea recursively over the dataflow graph.
-{ref}`sec:dispatch` gives the precise construction.
-{ref}`sec:invalidation` then examines invalidation: editing a cell invalidates only downstream cached results, and recomputing keys takes time proportional to affected cells.
-Side effects, which neither derivation sees, remain only partially covered; we return to this limitation in {ref}`sec:limitations`.
+marimo combines the two derivations: it hashes a reference value when possible and otherwise uses the key of the cell that produced the reference.
+Because the producing cell's key is derived by the same construction, this substitution extends recursively through the dataflow graph.
+This recursive use of producer keys borrows from build systems such as Nix [@dolstra2004nix], where a package's identity includes the identities of its dependencies.
+Section {ref}`sec:dispatch` describes how marimo constructs keys over the graph.
+Section {ref}`sec:invalidation` then explains invalidation: editing a cell invalidates only downstream cached results.
+Neither derivation observes untracked external state such as filesystem contents, network responses, wall-clock time, or randomness.
+Section {ref}`sec:limitations` describes the mechanisms that cover some of these cases and the remaining gaps.
 
 (sec:dispatch)=
 ## Constructing the key
 
-Here we describe a cell's cache key, computed from its source code and references. Throughout, $H(c)$ denotes the key of cell $c$.
+The following describes computing cache keys from source code, cell references, and will outline the mechanism for combining them.
+Throughout, $H(c)$ will denote the hash function $H$ on cell $c$.
 
 ### Hashing source code
 
-A cell's references identify what flows into it, and its code determines what it computes from those inputs.
-The code must therefore enter the key.
-Without it, two cells that read the same input, such as `y = x + 1` and `y = x - 1`, would share a key, and one could be served the other's cached result.
-Hashing code provides basic invalidation: editing a cell changes its key, so its stale result is never reused.
+The cells `y = x + 1` and `y = x - 1`, may have exactly the same "inputs", but they compute different outputs.
+As such, it would be incorrect to strictly use the inputs of this cell to determine its cache key.
+Under the assumption that code is deterministic (see \ref limitations for side effect discussions), it follows a cell’s code must contribute to its cache key.
+By using cell code in key construction, basic invalidation is achieved (editing a cell changes its key, so its stale result is never reused).
 
+Since source code formatting, and comments should not change a code hash, and subtle details like Python version should potentially change a code hash,
 marimo hashes the compiled bytecode rather than the source text.
-Compilation discards edits that cannot change behavior, such as comments and formatting, so they do not invalidate the cache.
-The trade-off is that bytecode is specific to the Python version.
-Cached results therefore do not transfer across interpreter upgrades, and marimo's browser export ({ref}`sec:wasm`) requires the exporting interpreter to match the browser's Python version.
+Compilation discards edits like comments and formatting, making bytecode stable within a specific Python version.
+A caveat is that cached results therefore do not transfer across interpreter upgrades.
+As a result, a notable case is marimo's browser export (section {ref}`sec:wasm`) requires a python version compatible with the targeted browser's pyodide/Python version.
 
 ### Hashing references
 
 :::{figure} figs/fig1_dispatch.png
 :label: fig:dispatch
 :width: 100%
-
-Hashing references.
-Left: a cell with no references contributes no reference hashes.
-For a cell with references, each value is content-addressed when possible; otherwise, the key of the cell that produced it is substituted.
-The reference hashes and the hash of the cell's compiled body are then combined into a single hash: the cell's key, $H(c)$.
-Right: the same derivation applied to a whole cell, classified as `Pure` when it has no references, `ContentAddressed` when every reference is hashed by content, and `ExecutionPath` when any reference requires producer substitution.
-The listing also adds `ContextExecutionPath`, a special case described in the text.
+Figure 1 shows the cascading hashing mechanism for references.
+Left: traces on references contribute to a cell key.
+Right: the derivation over the full cell, abridged from `BlockHasher.__init__` (`marimo/_save/hash.py`).
 :::
 
 ```python {.marimo hide_code="true" name="fig_dispatch_display"}
@@ -199,86 +197,72 @@ mo.image("figs/fig1_dispatch.png", width="100%")
 ```
 
 
-The construction first checks whether the cell has references.
-A cell with references tries to content-address each value and uses producer substitution only where content addressing fails; we call this decision the *key dispatch*.
-The cases are described below and illustrated in {ref}`fig:dispatch`.
+Hashing compiled code satisfies invalidating the body of a cached cell, but it does not account for the values that the cell uses.
+If the cell has no references, its code hash is the only contribution to its key.
+Otherwise, the hash key must account for values defined outside of the cached cell.
+Each reference contributes either a hash of its value or the key of the cell that produced it.
+We call this choice the *key dispatch*.
+The dispatch algorithm is illustrated in {ref}`fig:dispatch`, and outlines the three strategies for hashing references: code only, content addressed, and producer substitution labeled in the figure as `Pure`, `ContentAddressed`, and `ExecutionPath`, respectively.
 
-**No references.** A cell that references nothing outside its own body needs no reference hashes, so its key contains only the hash of its compiled code.
-The figure labels the whole-cell key `Pure`.
+A reference is **content-addressed** when marimo derives a hash from the reference's value.
+Immutable values, such as numbers, strings, and frozen collections, are hashed this way.
+Before hashing a reference to a user interface (UI) element such as a slider, marimo replaces the element with its current value, so moving the slider changes the hash.
+A value that exposes its underlying bytes through Python's buffer protocol is hashed from those bytes.
+This case covers NumPy ndarrays and other objects advertising NumPy's array interface, making it important for scientific computing.
+Here, the hash is computed from the contiguous buffer without serialization, an approach borrowed from joblib [@joblib] and mandala [@makelov2024mandala].
 
-**Content-addressed values.** A value that exposes its underlying bytes through Python's buffer protocol — the standard mechanism for exposing an object's raw bytes without copying — has those bytes hashed.
-Immutable values, such as numbers, strings, and frozen collections, are also hashed directly.
-Interactive inputs reach this case through normalization: before hashing, a reference to a user interface (UI) element such as a slider is replaced by its current value, so the key changes when the reader moves the slider.
-Buffer hashing covers NumPy ndarrays and other objects advertising NumPy's array interface.
-The hash is computed from the contiguous buffer without serialization, an approach borrowed from joblib [@joblib] and mandala [@makelov2024mandala].
-The figure labels a whole-cell key `ContentAddressed` when every reference can be hashed by content.
-
-**Producer substitution.** Any other value exposes nothing stable to hash, but a known upstream cell produced it.
-Instead of hashing the value, marimo uses the producing cell's key as the reference's hash.
-The producing cell's key uses this construction, covering its code, inputs, and everything upstream.
+A reference is hashed via "execution path" or **producer substitution** when marimo cannot content-address the reference but knows which upstream cell initialized the value.
+In this case, it substitutes the producing cell's key for the value's hash.
+The producing cell's key is built by this same construction, so it covers the producer's code, the producer's inputs, and, by the same rule, everything upstream of them.
 A change anywhere in the value's ancestry therefore changes the reference's hash.
-The figure labels a whole-cell key `ExecutionPath` when any reference requires this fallback.
 
 ### Combining hashes
 
 All hashing in this construction uses SHA-256, as {ref}`fig:dispatch` shows.
 The hashes of the code and of the references are combined into one in the combine step at the bottom of the figure.
-Every reference hash, in sorted reference-name order, is fed with the bytecode hash into one SHA-256 computation, so processing order cannot affect the result.
+Every reference hash, taken in sorted reference-name order so that the result does not depend on the order in which references were processed, is fed into a single SHA-256 computation together with the bytecode hash.
 The resulting digest is the cell's key, $H(c)$.
-Because SHA-256 is cryptographic ({ref}`sec:background`), keys match only when the code and every reference contribution match, so key equality safely stands in for "this cell would compute the same values."
-
-### Caching blocks and functions
-
-The cached unit is not always a whole cell: it can be a block of code inside a cell, or a function ({ref}`sec:api`).
-A reference defined earlier in the same cell as a cached block has no parent cell whose key could stand in for it.
-Instead, the code surrounding the block is folded into the key, a special case of producer substitution that the implementation calls `ContextExecutionPath`.
-For a cached function, the same dispatch classifies the function's arguments at call time.
+Because SHA-256 is a cryptographic hash function ({ref}`sec:background`), two keys match only when the code and every reference contribution match, so key equality is a safe stand-in for "this cell would compute the same values."
 
 (sec:invalidation)=
 ## Invalidation
 
-The construction of {ref}`sec:dispatch` is recursive: a cell's key can contain its producer's key in turn. Yet no key is derived by walking the whole ancestry.
-When a cell $c$ finishes, marimo records $H(c)$; when a downstream key needs it for producer substitution, marimo reuses the recorded value.
+Since the construction of {ref}`sec:dispatch` is recursive, a cell's key may be derived from its producer's key, which in turn may be derived from that producer's key.
+In practice, derivations do not have to explicitly walk the whole ancestry of a value to compute a key.
+When a cell $c$ finishes executing, marimo records its key $H(c)$, and when a downstream cell's key later needs $H(c)$ for producer substitution, marimo reuses the recorded value.
 Each cell's key is therefore computed at most once per execution.
 
-A cached result is *invalidated* when its cell's key changes: the new key matches no stored entry, so the next lookup misses and the cell recomputes.
-Invalidation is not an action marimo performs, and nothing is deleted.
-The old entry simply stops being found.
+A cached result is *invalidated* when its cell's key changes and the new key no longer matches any stored entry.
+When this happens, the next lookup misses and the cell recomputes.
+Invalidation is not an action that marimo performs (since nothing is deleted)-
+the old entry simply stops being addressable.
 
-{ref}`sec:keys` opened by ruling out false positives: the cache must never serve a value the code would not have produced.
-For invalidation, that means never missing a change: whenever re-running a cell could produce a different value, the cell's key must have changed.
-To keep false negatives rare, invalidation should be limited: an edit should not invalidate results it cannot affect, and updating keys should be cheap.
+To keep false negatives rare, invalidation should also be limited, and an edit should not invalidate results it cannot affect.
+Additionally, updating keys should be cheap.
 The two subsections below establish each property in turn.
 
 ### Invalidation never misses a change
 
-For a reference hashed by content, the property is immediate: changing bytes changes its hash and every key built from it.
-The case that needs an argument is producer substitution, which judges a value by its origin rather than its content.
-Could the producing cell's key stay the same while the value it produced changes?
-In a reactive notebook, no.
-A value changes only if its producing cell re-runs, and a cell re-runs only when its code or inputs change — its key's ingredients.
-An unchanged producer key therefore implies an unchanged value if cell bodies are deterministic; side effects are the exception ({ref}`sec:limitations`).
-This establishes reactive determinism ({ref}`sec:intro`): a cached value is what re-running the cell would produce.
-This argument is what requires a reactive notebook.
+When the bytes of a content-addressed reference change, the hash changes, and so does every key built from it.
+However, the ``producer substitution'' case requires an argument, is tied directly to the execution path of the notebook.
+As marimo is a _reactive_ notebook, the value can change only if the cell that produced it re-runs, and a cell re-runs only when its own code or its own inputs change, which makes the value consistent code hash mechanism.
 
-Caching never requires the value itself to be hashable, only that the producing cell have a key.
-The substitution is a special case of Hughes's lazy memo functions [@hughes1985lazy]: two values are treated as equal because they come from the same execution of the same code, not because their contents were compared.
+An unchanged producer key therefore implies an unchanged value, provided cell bodies are deterministic with side effects being the exception (see section {ref}`sec:limitations` for discussion side effects).
 
 ### Invalidation is limited and cheap
 
-With producer substitution, a cell's key contains upstream cell keys.
-The notebook's keys therefore form a Merkle directed acyclic graph (DAG) [@merkle1988protocols], a structure in which each node's fingerprint depends on the fingerprints of the nodes it builds on.
-Git commits use the same construction.
+Wherever producer substitution occurs, a cell's key contains the keys of cells upstream of it.
+By this definition, the notebook's keys form a Merkle directed acyclic graph (DAG) [@merkle1988protocols], since each node's fingerprint depends on the fingerprints of the nodes built on top of it.
 Two properties follow.
-First, editing a cell changes keys only downstream, so every other cached result remains valid.
-Second, where a re-run cell produces byte-identical values, content-addressed consumers keep their old keys and propagation stops.
-Recomputing keys after an edit takes time proportional to changed keys because every other recorded key is reused.
+First, editing a cell can change keys only in the cells downstream of the edit, so every other cached result in the notebook remains valid.
+Second, the change does not always reach everything downstream: where a re-run cell produces byte-identical values, its content-addressed consumers keep their old keys, and the propagation stops there.
+Recomputing keys after an edit takes time proportional to the number of cells whose keys change, because every other cell's recorded key is simply reused.
 
 ### A worked example
 
-{ref}`fig:walked` traces the construction on the four-cell PyTorch graph below: a seed, a random tensor generated from it, an independently constructed small neural network, and a forward pass that applies the network to the tensor.
-The cells exercise all three strategies: the seed is hashed as an immutable value, the tensor through its buffer, and the network (`TinyNet`), which exposes no bytes, by its producing cell's key.
-The italic label under each cell in the figure classifies that cell's own key, as computed by marimo's hasher: `a` is `Pure` (no references), `b` and `c` are `ContentAddressed` (every reference hashed by value), and `d` is `ExecutionPath` (one reference substituted a producer's key).
+{ref}`fig:walked` traces the key construction on the four-cell PyTorch notebook composed of a seed, a random tensor generated from the seed, a small neural network, and a forward pass that applies the network to the tensor.
+The italic label under each cell in the figure classifies that cell's own key, as computed by marimo's hasher.
+By cell label, `a` is `Pure` (no references), `b` and `c` are `ContentAddressed` (every reference hashed by value), and `d` is `ExecutionPath` (one reference substituted a producer's key).
 
 ```{raw:typst}
 #text(size: 8.5pt)[#raw(lang: "pseudo", block: true,
@@ -353,30 +337,35 @@ def walked_example_figure():
 :label: fig:walked
 :width: 100%
 
-A worked example of the recurrence on the four-cell graph written out above.
+A worked example of the recurrence on the four-cell graph written out above in \ref.
 Every hash and branch label in the figure is produced by marimo's real hasher on a compiled cell graph at render time.
-Changing the seed ($t_0 \to t_1$) invalidates `a`, `b`, and `d` (red edges); `c` stays cached because the seed is not among its references.
+The seed is hashed as an immutable value, the tensor is hashed through its buffer, and the network (`TinyNet`), which exposes no bytes to hash, is represented by the key of the cell that constructed it- covering the "Pure", "ContentAddressed", and "ExecutionPath" cases discussed in dispatch.
+Changing the seed ($t_0 \to t_1$) invalidates `a`, `b`, and `d` (red edges); while `c` stays cached because the seed is not among its references.
 Re-rendering with the same seed ($t_1 \to t_2$) leaves every hash unchanged (green edges), so the rebuilder reuses every result.
 The italic label under each box names the dispatch branch that cell exercises.
 :::
 
+### Caching blocks and functions
+
+The cached unit is not always a whole cell: it can be a block of code inside a cell, or a function ({ref}`sec:api`).
+A reference defined earlier in the same cell as a cached block has no parent cell whose key could stand in for it.
+Instead, the code surrounding the block is folded into the key, a special case of producer substitution that the implementation calls `ContextExecutionPath`.
+For a cached function, the same dispatch classifies the function's arguments at call time.
+
 (sec:storage)=
 # Storage and Loading
 
-On a cache hit, marimo restores the variables the cached cell would have defined.
-Restoring has two parts: *lookup* finds the stored entry matching $H(c)$, and *loading* deserializes its values into memory.
-They need not happen together because the notebook does not always need a value's bytes.
-For example, a downstream cell may pass a variable to a third cell without inspecting it.
-marimo therefore lets loading lag lookup, and offers two loaders that differ in how far.
+On a cache hit, marimo must restore the variables the cached cell would have defined.
+marimo provides a few ``loaders'' that differ loading the storing values.
+However, all restoring has two parts: *lookup* finds the stored entry whose key matches $H(c)$, and *loading* deserializes the entry's values into memory.
+These two parts do not have to happen at the same time, because a notebook does not always need a value's bytes when it finds the corresponding cache entry.
+For example, a downstream cell may take a variable and pass it to a third cell without inspecting it.
 
-For `mo.persistent_cache`, the default loader, `PickleLoader`, does not lag at all.
-It writes the full `Cache` envelope, the record holding every variable the cell defined, as a single blob using pickle, Python's built-in serializer.
-On lookup, it loads every variable back immediately.
-
-A second loader, `LazyLoader`, writes a JSON (JavaScript Object Notation) manifest listing each variable, alongside one blob file per value.
-For each variable, the manifest records either the value itself (small primitives are inline) or its blob-file name.
+The loader, `LazyLoader`, demonstrates the lookup / loading separation.
+On write, the loader writes a JSON (JavaScript Object Notation) manifest listing each variable.
+For each variable, the manifest records either the value itself (small primitives are stored inline) or the path to an external file with the value.
 Its `cache_type` field records which strategy of {ref}`sec:dispatch` produced the key.
-Abridged, a manifest for a cell that defined a seed and a large array might read:
+For example, an abridged manifest for a cache named `training` whose cell defined a value, `seed`, and a large array, `x`, might read:
 
 ```json
 {
@@ -384,66 +373,88 @@ Abridged, a manifest for a cell that defined a seed and a large array might read
   "cache_type": "ContentAddressed",
   "defs": {
     "seed": {"primitive": 7},
-    "x": {"reference": "blob-3fa9…"}
+    "x": {
+      "reference": "training/9V5v6Cji…/x.npy",
+      "type_hint": "numpy.ndarray"
+    }
   },
   "stateful_refs": [],
-  "meta": {"version": 4, "blob_hashes": {"blob-3fa9…": "e3b0c4…"}}
+  "meta": {
+    "version": 5,
+    "blob_hashes": {
+      "training/9V5v6Cji…/x.npy": "e3b0c4…"
+    },
+    "signer_public_key": "-----BEGIN PUBLIC KEY-----\n…",
+    "signature": "…"
+  }
 }
 ```
 
-On lookup, `LazyLoader` binds each variable not to its value but to a *stub*: a small placeholder object that records where the value's bytes live and how to deserialize them.
-All stubs share a `load()` method, with blob formats for pickle, NumPy `.npy`, Apache Arrow, PyTorch `.pt`, and binary media.
-The stub loads the value on first use; unused variables are never loaded.
+When signing support is available, the blob hashes and signature let marimo verify the external files before deserializing them; {ref}`sec:limitations` discusses this protection and its limits.
+
+On lookup, `LazyLoader` binds each variable to a *stub* rather than immediately loading its value.
+A stub is a small placeholder object that records where the value's bytes live and how to deserialize them.
+All stubs share one interface with a single method, `load()`, and one stub type exists per storage format: pickle, NumPy `.npy`, Apache Arrow, PyTorch `.pt`, and binary media.
+The first time the notebook uses the variable, its stub loads the value.
+A variable that is never used is never loaded.
+
+By contrast, the loader, `PickleLoader`, loads values during lookup.
+It writes the full `Cache` envelope, holding every variable the cell defined, as a single blob using pickle (Python's built-in serializer).
+When it finds a matching entry, it immediately loads every variable back into memory.
 
 (sec:wasm)=
 ## WASM portability
 
-Cached values also work in marimo's static WASM export: a standalone HTML file that runs the notebook in the reader's browser without a server on Pyodide, a Python runtime compiled to WebAssembly.
+Separating stored values into a manifest and individual blobs also lets marimo bundle them with a static notebook.
+marimo's static WebAssembly (WASM) export is a standalone HTML (Hypertext Markup Language) file that runs the notebook in the reader's browser, with no server, on Pyodide, a Python runtime compiled to WebAssembly.
 When automatic cell caching is enabled, exporting a notebook through marimo's command-line interface (`marimo export html-wasm --execute`) bundles the cache manifests and blobs into that file.
-When a reader opens it, the browser session derives the same keys and loads matching cached values on first use; a missing or unverifiable entry is treated as a cache miss.
-Scientific articles, blog posts, and educational materials can therefore include precomputed results and trained models.
+When a reader opens the export, the browser session derives the same keys and loads matching cached values on first use.
+A missing or unverifiable entry is treated as a cache miss.
+Scientific articles (including this one), blog posts, and educational materials can therefore include precomputed results and trained models with the notebook.
 
-The export contains only the cached values and the user code that produced them, not external libraries.
-A cell may therefore depend on packages the browser cannot import, as long as the values it defines are stored in a portable format.
-Our demonstration, published at <https://dmadisetti.github.io/scipy_proceedings/>, exercises exactly this case.
+The export includes the cached values and the user code, but not the external libraries used to produce those values.
+A cell may therefore depend on a package the browser cannot import, as long as the values it defines are stored in a portable format.
+Our demonstration, published at <https://dmadisetti.github.io/scipy_proceedings/>, exercises this case.
 On the exporting machine, the notebook trains a PyTorch model, converts it to ONNX (Open Neural Network Exchange) bytes, defines a small wrapper class, and stores a sweep of predictions as NumPy arrays.
-In the browser, where Pyodide cannot currently import PyTorch, the arrays and the wrapper load through their format stubs, and a custom stub feeds the ONNX bytes to `onnxruntime-web`, an ONNX runtime for the browser, restoring a model the notebook can call.
+In the browser, where Pyodide cannot currently import PyTorch, the arrays and the wrapper load through their format stubs.
+A custom stub feeds the ONNX bytes to `onnxruntime-web`, an ONNX runtime for the browser, restoring a model the notebook can call.
 
 (sec:api)=
 # Using marimo's cache
 
-marimo provides three cache mechanisms: in-memory caching within a session, persistent caching across sessions, and a mode that caches every cell automatically.
-None of the three asks the user to declare dependencies or construct keys.
-Every key is built as described in {ref}`sec:keys`, so invalidation follows from the notebook's dataflow graph, including changes to UI elements and `mo.state`.
+marimo exposes caching with in-memory caching within a session, persistent caching across sessions, and automatic caching of every cell.
+All three use the key construction described in {ref}`sec:keys`, so users do not need to declare dependencies or construct keys.
+Changes to user interface elements and values created with marimo's state primitive, `mo.state`, are included in this construction.
 
 ## In-memory caching
 
-The decorator `@mo.cache` memoizes a function.
-Through {ref}`sec:dispatch`, each call is keyed on the function's code, arguments, and variables it uses outside its body.
-Results stay in kernel memory, so a hit reads nothing from disk, but all are lost when the session ends.
-This form suits values cheap to hold but wasteful to recompute, such as a function result reused whenever a slider moves.
-`@mo.cache` keeps every result; the variant `@mo.lru_cache` keeps a bounded number, 128 by default, evicting the least recently used when full.
+The decorator `@mo.cache` memoizes a function in memory.
+The key for each call combines the function's code, its arguments, and variables it uses from outside its body, following the construction in {ref}`sec:dispatch`.
+Results stay in the kernel's memory, so a hit reads nothing from disk, but all results are lost when the session ends.
 
-**Comparison to `functools`.** Python's built-in `functools.cache` is not well-suited to reactive notebooks.
-A reactive runtime re-runs a function's defining cell whenever its code or inputs change, recreating the function with an empty `functools` cache.
-Every stored result is therefore thrown away on every re-run of the defining cell, even when the change did not affect the function's behavior.
+In comparison to Python's built-in **`functools.cache`**, marimo's `@mo.cache` is better suited to reactive notebooks.
+Since a reactive runtime re-runs the cell that defines the function, it creates a new function with an empty `functools` cache.
+This discards every stored result, even when the change that caused the cell to run did not affect the function's behavior.
 
 ## Persistent caching
 
-The decorator `@mo.persistent_cache` memoizes a function with the same keys but writes results to disk through the loaders of {ref}`sec:storage`, so they survive kernel restarts.
-This lets a notebook restart without re-running expensive cells.
-Used as a context manager, `with mo.persistent_cache(name="training"):` caches a block of code inside a cell.
-On a hit, the block does not execute: its variables are restored from disk, and its side effects do not happen.
-Optional arguments choose the storage directory (`save_path`) and the loader (`method="pickle"` or `method="lazy"`).
-A third option, `pin_modules`, opts library versions into the key.
+The decorator `@mo.persistent_cache` uses the same key construction but writes results to disk through the loaders described in {ref}`sec:storage`, allowing the results to survive kernel restarts.
+This lets notebooks restart without re-running its expensive cells.
+These files are also bundled with the WebAssembly export described in {ref}`sec:wasm`.
+
+Additionally, `mo.persistent_cache` can be used as a context manager. A block of code under `with mo.persistent_cache(name="training")` is cached, and on a hit, marimo restores the block's variables without executing the block.
+Optional arguments select the storage directory (`save_path`) and loader (`method="pickle"` or `method="lazy"`).
+The `pin_modules` option adds selected library versions to the key.
 
 ## Automatic caching of every cell
 
-The decorators and the context manager cache only what the author wraps.
-marimo can also cache every cell automatically.
-In this mode, the runtime computes each cell's hash and checks the cache: on a hit it skips the body and restores its variables, and on a miss it runs the cell and saves the results.
-A stored entry occasionally cannot be used: if one of its variables could not be serialized, the entry holds only a placeholder, and the cell re-runs along with any upstream cells needed to rebuild the missing value.
-Turning on the `cache_cells` runtime option yields the automatic, cell-granular caching that {ref}`sec:intro` argued reactive notebooks make possible: the whole notebook is cached and the author marks nothing.
+The decorators and context manager cache only the code the author marks.
+The `cache_cells` runtime option instead applies caching to every cell.
+Before running a cell, the runtime computes its key and checks the cache.
+On a cache hit, the runtime skips the cell's body and restores its variables; on a miss, it runs the cell and saves the results.
+Since cache attempts to accound for all variables, sometimes stored entries may contain only a placeholder for variables that can not be serialized.
+When a later cell needs that variable, marimo re-runs its defining cell and any upstream cells needed to rebuild it.
+With `cache_cells` enabled, the author does not need to annotate individual functions, blocks, or cells.
 
 (sec:eval)=
 # Evaluation
@@ -765,53 +776,69 @@ The load comparison therefore includes the cost of reading through the operating
 (sec:limitations)=
 # Limitations and Discussion
 
-The most salient limitations follow.
+The current implementation has five limitations.
 
-**Library versions.** The decorator and context-manager APIs do not take library versions into account by default; the user can include them with `pin_modules` ({ref}`sec:api`).
-Without module pinning, upgrading a package can therefore serve stale hits.
+**Library versions.** The decorator and context-manager APIs do not include library versions in the key by default; the user can include selected versions with `pin_modules` ({ref}`sec:api`).
+Without module pinning, upgrading a package can therefore produce a stale cache hit.
 Automatic cell caching includes library versions by default, so a version mismatch produces a cache miss instead.
 
-**Python versions.** Because code is hashed as bytecode, keys are specific to the Python version ({ref}`sec:dispatch`).
-Upgrading the interpreter therefore invalidates every cached result.
-Unlike a library upgrade, this failure is safe: the keys miss and the cells recompute.
-It is also why the browser export requires the exporting interpreter to match the browser's Python version ({ref}`sec:wasm`).
+**Python versions.** Because marimo hashes code as bytecode, cache keys are specific to the Python version ({ref}`sec:dispatch`).
+A cache written by one Python version does not produce hits under another.
+This behavior is safe because the cells recompute, but it also requires the Python version used for a browser export to match the version provided by Pyodide ({ref}`sec:wasm`).
 
-**Mutation outside the graph.** Mutations that bypass the dataflow graph — aliased mutation through a closure, or attribute writes on an object that cannot be content-addressed — can change a value without changing any key, so downstream cells can be served stale results.
-A suite of checks that runs on every build of this paper measures exactly this class of undetectable false positive, and Rex [@zheng2025reactive] probes the same boundary.
+**Mutation outside the graph.** Mutations that bypass the dataflow graph can change a value without changing any cache key.
+Examples include aliased mutation through a closure and attribute writes on an object that cannot be content-addressed.
+Downstream cells can then receive a stale cache hit that marimo cannot detect.
+A suite of checks that runs on every build of this paper exercises this case, and Rex [@zheng2025reactive] probes the same boundary.
 
-**Cache tampering.** Unpickling can execute arbitrary code, so loading from a cache that an attacker has modified could run a malicious payload.
-When cryptographic signing support is available, the lazy loader signs caches by default: each signed manifest carries an Ed25519 signature that also covers the SHA-256 hash of every blob, and signatures are checked before any bytes are deserialized.
-The pickle loader has no such protection, and its caches should be loaded only from trusted sources.
+**Side effects.** External state does not enter a cache key unless the notebook represents it as a dependency.
+File reads, network calls, randomness, and wall-clock queries can therefore change a cell's result without changing its key.
+marimo can represent two such dependencies explicitly: `mo.watch.file` includes a file's contents in the key, and `mo.watch.directory` includes a directory listing.
+Other sources of external state and nondeterminism are not tracked automatically.
 
-**Side effects.** The cache is mostly blind to side effects such as file reads, network calls, and wall-clock queries.
-marimo does provide a mechanism for tracking a side effect explicitly: the side effect is wrapped in a handle whose value is folded into the cell's hash as if it were an external reference.
-Two such handles exist today, `mo.watch.file` and `mo.watch.directory`, keyed on file content and directory listing respectively.
-Randomness and wall-clock time could bind to similar lifetime-managed handles.
-
-None of these limitations is fundamental to the approach.
-Future work can address each one by adding branches to the key dispatch.
+**Cache integrity and trust.** Unpickling can execute arbitrary code, so loading a cache that an attacker has modified could run a malicious payload.
+When cryptographic signing support is available, the lazy loader signs caches by default.
+The signature covers the manifest and the SHA-256 hash of every stored blob, and marimo verifies them before deserializing any value.
+The pickle loader has no such protection and should load caches only from trusted sources.
+Signatures show that a cache was produced by a trusted key and has not been modified; they do not establish which keys a reader should trust or whether the signed result is correct.
+Sharing caches therefore requires a way to establish trust in the signing key.
 
 (sec:future-work)=
 # Future work
 
-Our evaluation and limitations point to three directions.
+The evaluation and limitations suggest four directions for future work.
 
-**Cost-aware policy.** {ref}`sec:e2e` measured what a cache hit costs and what a cache miss adds. With those numbers available at runtime, marimo could apply the break-even rule automatically: decline to cache a cell whose body runs faster than the cache's own overhead, and report the time each cached cell actually saved.
+**Performance.** {ref}`sec:e2e` measures the costs of cache hits and misses.
+marimo could measure these costs while a notebook runs and apply the break-even rule automatically, declining to cache a cell when the cache costs more than the computation it would avoid.
+The same measurements could report how much execution time each cached cell saved.
+<!--
+PR 1262 reviewer follow-up (non-blocking): consider a Bloom filter before
+remote-store lookups if cache-miss latency becomes significant. The current
+lazy store performs a direct lookup of a per-entry manifest rather than parsing
+one growing manifest, so this optimization should follow measurements that
+establish a need.
+https://github.com/scipy-conference/scipy_proceedings/pull/1262#discussion_r3718969802
+-->
 
-**Expanded side effects.** {ref}`sec:limitations` described handles that fold a side effect's value into a cell's key. Handles for randomness (`mo.random`), network requests (`mo.request`), and time (`mo.clock`) would be straightforward additions. Whether tracking more side effects justifies the added interface surface remains an open question.
+**Additional external dependencies.** The explicit-dependency mechanism used for files and directories could be extended to sources such as randomness, network responses, and time.
+The open design question is which sources justify dedicated interfaces and how each source should contribute a stable value to the key.
 
-**Chain of trust for exports.** The signing described in {ref}`sec:limitations` protects a cache against tampering, but a shared or exported cache also requires the reader to know which public key to trust. Establishing that chain of trust, from the machine that produced an export to the reader's browser session, remains open.
+**Persistent-cache management.** The persistent loaders do not impose a disk-capacity or eviction policy.
+Future work could add size limits, cleanup policies, and storage accounting that reflects the different formats used for cached values.
 
-Two further questions remain open: a storage policy (eviction, per-codec footprint), and cross-session memoization aligned with recorded provenance [@pimentel2017noworkflow].
+**Provenance-aware reuse.** Persistent caches already reuse results across sessions.
+They could also record and expose which computation produced each reused value, connecting cache reuse with systems for tracking computational provenance [@pimentel2017noworkflow].
 
 (sec:conclusion)=
 # Conclusion
 
 We have presented a caching mechanism for marimo, a reactive notebook for Python.
-The cache key for a cell is built from the cell's compiled body and the content-addressed values of its references, falling back to the producing cell's hash when a reference cannot be addressed by content.
-This construction preserves reactive determinism, survives superficial edits, and supports portable exports.
-Our evaluation shows that a marimo cache hit performs comparably to existing scientific-Python memoizers while requiring no annotations from the user.
-Finally, the cache participates in marimo's static HTML/Pyodide WASM export, so users can share notebooks with precomputed results and models, as the export published at <https://dmadisetti.github.io/scipy_proceedings/> demonstrates.
+A cell's cache key combines a hash of its bytecode with hashes derived from its references; when a reference cannot be hashed by content, the key of the cell that produced it stands in.
+This construction invalidates cached results when their code or tracked inputs change, while preserving them across formatting and comment changes.
+On the Apple M4 Max used to build this paper, both persistent marimo loaders served 100 MB arrays in under 100 ms, and mandala took roughly three times as long as marimo's persistent cache at the largest measured payload.
+At the same payload on Linux x86-64, mandala took roughly 1.2 times as long.
+marimo can apply the mechanism automatically to every cell without per-cell annotations and include the resulting caches in its static WebAssembly export.
+The export published at <https://dmadisetti.github.io/scipy_proceedings/> demonstrates how readers can use precomputed results and models in a browser-only Python runtime.
 
 ## Acknowledgments
 
