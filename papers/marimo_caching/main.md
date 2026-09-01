@@ -158,10 +158,10 @@ This key is computable, but it does not change when the cell's reference values 
 marimo combines the two derivations: it hashes a reference value when possible and otherwise uses the key of the cell that produced the reference.
 Because the producing cell's key is derived by the same construction, this substitution extends recursively through the dataflow graph.
 This recursive use of producer keys borrows from build systems such as Nix [@dolstra2004nix], where a package's identity includes the identities of its dependencies.
-Section {ref}`sec:dispatch` describes how marimo constructs keys over the graph.
-Section {ref}`sec:invalidation` then explains invalidation: editing a cell invalidates only downstream cached results.
+{ref}`sec:dispatch` describes how marimo constructs keys over the graph.
+{ref}`sec:invalidation` then explains invalidation: editing a cell invalidates only downstream cached results.
 Neither derivation observes untracked external state such as filesystem contents, network responses, wall-clock time, or randomness.
-Section {ref}`sec:limitations` describes the mechanisms that cover some of these cases and the remaining gaps.
+{ref}`sec:limitations` describes the mechanisms that cover some of these cases and the remaining gaps.
 
 (sec:dispatch)=
 ## Constructing the key
