@@ -8,13 +8,13 @@ pyproject: |-
   # `--sandbox` reads from here, the standalone file serves `uv sync`
   # and IDE tooling.
   dependencies = [
+      # Bundle the paper's local helper package for Jupyter Book islands.
+      "cache-paper-lib @ https://dmadisetti.github.io/scipy_proceedings/wheels/cache_paper_lib-0.1.1-py3-none-any.whl",
       # Pin to marimo 0.23.16 because the paper uses automatic
-      # local-module packaging for the WASM export
-      # (so the paper's own `lib` ships to the browser with no hand-hosted
-      # wheel), the `cache_cells` runtime option, and the signed
-      # LazyLoader. The `lib.compute` / `save_fig` helpers are imported
-      # from this directory
-      # for native runs (`make figures`, `make pdf`).
+      # local-module packaging for standalone WASM exports, the `cache_cells`
+      # runtime option, and the signed LazyLoader. The `lib.compute` /
+      # `save_fig` helpers are imported from this directory for native runs
+      # (`make figures`, `make pdf`).
       "marimo==0.23.16",
       "matplotlib==3.10.9",
       "numpy==2.4.6",
