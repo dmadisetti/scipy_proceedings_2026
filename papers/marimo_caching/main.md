@@ -202,6 +202,7 @@ Otherwise, the hash key must account for values defined outside of the cached ce
 Each reference contributes either a hash of its value or the key of the cell that produced it.
 We call this choice the *key dispatch*.
 The dispatch algorithm is illustrated in {ref}`fig:dispatch` and outlines three resulting cell-key categories: code only, content-addressed, and producer substitution, labeled in the figure as `Pure`, `ContentAddressed`, and `ExecutionPath`, respectively.
+For blocks and functions cached within a cell, marimo also incorporates the surrounding cell's code, a special case labeled `ContextExecutionPath` in the figure and described in {ref}`sec:context-execution-path`.
 
 A reference is **content-addressed** when marimo derives a hash from the reference's value.
 Immutable values, such as numbers, strings, and frozen collections, are hashed this way.
@@ -342,6 +343,7 @@ Re-rendering with the same seed ($t_1 \to t_2$) leaves every hash unchanged (gre
 The italic label under each box names the dispatch branch that cell exercises.
 :::
 
+(sec:context-execution-path)=
 ### Caching blocks and functions
 
 The cached unit is not always a whole cell: it can be a block of code inside a cell, or a function ({ref}`sec:api`).
@@ -457,36 +459,43 @@ With `cache_cells` enabled, the author does not need to annotate individual func
 # Evaluation
 
 Caching does not always save time.
-Every hit pays a fixed overhead: deriving the key, then loading the value.
-When the goal is portability, or a record of where results came from, rather than speed, that overhead does not matter.
-When the goal is to skip expensive recomputation, the overhead must be smaller than the cell body it avoids.
+A hit pays the cost of deriving a key and loading a value; a miss derives a key and saves a value after running the cell body.
+When portability or provenance is the goal, this overhead may be worthwhile even if caching is not faster.
+When the goal is to skip recomputation, the work avoided must repay the overhead.
 
-We validate the implementation by measuring three cost components — key derivation, value load, and value save — both separately and as end-to-end hit and miss paths.
-Payloads are NumPy `float64` arrays from 1 MB to 1 GB.
-We compare six strategies: `mo.cache`, `mo.persistent_cache` with each of its two loaders, mandala's decorated-function memoization, and diskcache in two forms, a memoizing decorator and a plain store with a fixed key.
-The fixed-key form performs no key derivation at all, so it is a lower bound on hit time.
-Each cost is measured over 10 runs after priming and a warmup, and we report the median.
-Every persisted measurement is keyed on a host fingerprint (operating system, architecture, and Python version) and a methodology-version string, so no result is reused across hosts or after the harness changes.
+We measure key derivation, value load, and value save, both separately and as end-to-end hit and miss paths.
+The payloads are NumPy `float64` arrays ranging from 1 MB to 1 GB.
+We compare six strategies: `mo.cache`, `mo.persistent_cache` with each of its two loaders, mandala's decorated-function memoization, and diskcache as both a memoizing decorator and a plain store with a fixed key.
+The fixed-key form performs no key derivation and provides a lower bound on cache-hit time.
+We measure each cost over 10 runs after priming each cache and one warmup, and report the median.
+Persisted measurements are keyed on the operating system, architecture, Python implementation and version, and a methodology-version string.
+A change to any of these properties causes the benchmark to recompute the measurement.
 
 (sec:e2e)=
 ## End-to-end cache evaluation
 
-A notebook user experiences the cache as a single delay: the time from editing one cell to the moment a downstream cell's value is available in Python again.
-Panel (a) of {ref}`fig:cache-eval` reports that end-to-end time for six strategies.
-All six cluster together up to roughly 49 MB.
-The dashed line at 100 ms marks the threshold below which a response reads as instantaneous [@card1991information], and every persistent method stays under it across typical exploratory payload sizes.
+A notebook user experiences a cache hit as the time needed to derive the key and restore the stored value.
+Panel (a) of {ref}`fig:cache-eval` reports this delay for the six strategies.
+On the build host, every strategy stays below 100 ms for payloads through 50 MB.
+At 100 MB, both persistent marimo variants remain below this threshold while mandala exceeds it.
+The dashed line marks the 100 ms threshold below which a response reads as instantaneous [@card1991information].
 
-The dotted curve in panel (a) shows when caching pays off.
-With hit rate $p$, caching saves time when the cell body costs more than $T_{\textrm{hit}} + \frac{1-p}{p}\,(T_{\textrm{key}} + T_{\textrm{save}})$.
-On these payloads the measured miss overhead is comparable to the hit cost, so at $p = 0.9$ the break-even body cost is roughly 10% above the hit curve.
+The dotted curve in panel (a) shows how expensive the cell body must be before caching saves time.
+Let $T_{\textrm{hit}}$ be the cost of serving a hit, and let $T_{\textrm{key}} + T_{\textrm{save}}$ be the overhead a miss adds to running the cell body.
+If a fraction $p$ of lookups are hits, caching saves time when the cell body costs more than $T_{\textrm{hit}} + \frac{1-p}{p}\,(T_{\textrm{key}} + T_{\textrm{save}})$.
+For these payloads, the measured miss overhead is comparable to the hit cost, so at a hit rate of $p = 0.9$, the break-even body cost is roughly 10% above the hit curve.
 
-Panel (b) decomposes the largest-payload hit into key derivation and value load, next to the overhead a miss adds (key derivation and value save).
+Panel (b) decomposes the largest-payload hit into key derivation and value load, alongside the key derivation and value save that a miss adds.
+This decomposition explains the separation between implementations at larger payload sizes.
 mandala derives its key with `joblib.hash`, which serializes the value through pickle before hashing it [@makelov2024mandala].
-marimo hashes the array's contiguous bytes directly through Python's buffer protocol, the content addressing of {ref}`sec:dispatch`, with no serialization step.
-On the Apple M4 Max used for the camera-ready figures, hashing is fast, and the extra pickle pass costs mandala roughly 3× end to end.
-On a Linux x86-64 server, where memory copies are cheap relative to hashing, the pickle pass costs little, value load dominates instead, and the penalty shrinks to roughly 1.2×.
-marimo's value-load time matches that of the fixed-key diskcache form, which performs no key derivation, confirming that the gap comes from key derivation rather than from storage.
-Panel (c) exposes per-call variance; it also shows `diskcache.memoize` failing once a payload exceeds its SQLite blob-size ceiling, so its largest sizes drop out of the sweep.
+marimo instead hashes the array's contiguous bytes directly through Python's buffer protocol, avoiding the serialization step.
+On the Apple M4 Max used for the camera-ready figure, mandala is roughly three times slower end to end at the largest measured payload.
+However, on a Linux x86-64 server, value loading dominates and the ratio shrinks to roughly 1.2 times.
+The difference therefore appears to be hardware-dependent.
+marimo's value-load time closely matches the fixed-key diskcache control, indicating that the gap to mandala comes from key derivation rather than storage.
+
+Panel (c) reports the variation across individual cache hits at the largest payload size.
+`diskcache.memoize` does not appear at this size because the payload exceeds the blob-size limit of its underlying SQLite database.
 
 
 ```python {.marimo hide_code="true" name="fig_cache_eval"}
@@ -757,17 +766,18 @@ cache_eval()
 :width: 100%
 
 End-to-end cache evaluation on NumPy `float64` payloads.
-(a) Cache-hit latency versus payload size, on log-log axes.
-The dashed line at 100 ms marks the interactive threshold [@card1991information], and the dotted curve is the break-even body cost at a 90% hit rate.
-(b) Decomposition of a hit (key derivation plus value load) and a miss (key derivation plus value save) at the largest sweep size, measured on the real disk-backed paths.
-(c) Per-method distribution of cache-hit samples at the largest size; `diskcache.memoize` drops out past its blob ceiling.
-The host label reports the build host, the mandala-to-marimo ratio, and the cold-versus-cached cost of the figure's own sweep.
+(a) Cache-hit latency versus payload size on logarithmic axes.
+The dashed line at 100 ms marks the interactive threshold [@card1991information], and the dotted curve gives the break-even body cost at a 90% hit rate.
+(b) The cost of a hit (key derivation and value load) and the overhead added by a miss (key derivation and value save) at the largest payload size.
+(c) The distribution of cache-hit measurements at the largest payload size.
+`diskcache.memoize` does not appear at this size because the payload exceeds the blob-size limit of its underlying SQLite database.
+The host label reports the build host, the measured mandala-to-marimo ratio, and the cold and cached costs of the figure's own benchmark sweep.
 :::
 
-The camera-ready version of this paper was evaluated on a MacBook Pro with an Apple M4 Max.
-The measurements are produced by the paper's own build, and the figure's host label reports the measured mandala-to-marimo ratio, so a reproduction on different hardware shows its own number.
-The stage-decomposition measurement times the real disk-backed paths on both sides: `PickleLoader.load_cache` and `LazyLoader.load_cache` for marimo, and `joblib.load` on a temp-file blob for mandala.
-The load comparison therefore includes the cost of reading through the operating system's file cache and of reconstructing the cache envelope, both of which a bare `pickle.loads` would skip.
+The camera-ready figure was produced on a MacBook Pro with an Apple M4 Max.
+Because the relative costs of hashing, serialization, and loading depend on the hardware, the figure reports its build host and measured mandala-to-marimo ratio; a build on different hardware reports its own result.
+The stage decomposition measures the actual disk-backed loading paths for both marimo loaders and for mandala, including the operating system's file cache and the cost of reconstructing the cache envelope.
+An in-memory deserialization benchmark would omit both costs.
 
 
 (sec:limitations)=
