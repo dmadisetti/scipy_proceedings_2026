@@ -1,6 +1,9 @@
 ---
 title: 'Hash all the things: Caching for fast notebook restarts'
 short_title: marimo Caching
+downloads:
+  - file: full_text.pdf
+    title: Paper (PDF)
 marimo-version: 0.23.16
 pyproject: |-
   requires-python = ">=3.12"
