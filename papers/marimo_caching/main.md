@@ -56,8 +56,8 @@ We describe a caching mechanism that lets reactive notebooks restart without re-
 The mechanism is built into marimo, a reactive Python notebook that models the notebook as a dataflow graph.
 Each cell's cached result is identified by a key built from fingerprints (hashes) of the cell's code and inputs.
 Input values whose bytes are accessible are hashed directly, while other inputs are represented by the key of the cell that produced them, computed the same way.
-Because each cell's key folds in the keys of the cells it depends on, editing one cell can invalidate the cached results of cells downstream of it.
-Cached values are stored on disk and loaded only when accessed, so they can be reused across independent runs of the same notebook.
+These contributions propagate through the dataflow graph, so editing one cell can invalidate cached results downstream of it.
+Cached values are stored on disk and loaded at evaluation, so they can be reused across independent runs of the same notebook.
 These values are also bundled into marimo's static export, a standalone web page written in HyperText Markup Language (HTML) that runs the notebook through WebAssembly (WASM), so readers whose only Python runtime is a browser can open a notebook with its expensive results and trained models already in place.
 Empirically the cache lookup is as fast or faster than representative baselines on microbenchmarks of variably sized payloads, though the magnitude of the advantage is hardware-dependent.
 
@@ -89,7 +89,7 @@ In contrast, reactive notebooks already draw a boundary around every cell, so th
 The caching mechanism we propose, and whose implementation we share, was designed to satisfy three properties.
 
 * Skip expensive recomputation when a cell's references and source are unchanged.
-* Preserve reactive determinism by reusing a result only while it stays valid and never serving a stale (false-positive) hit.
+* Preserve reactive determinism by ensuring that changes tracked by the dataflow graph cannot produce stale (false-positive) hits.
 * Make cached artifacts transportable through marimo's static WASM/HTML export.
 
 Out of scope are full session restoration in the sense of Kishu [@li2025kishu], distributed execution, and reproducibility of arbitrary Python notebooks [@pimentel2019largescale].
@@ -134,7 +134,7 @@ IncPy modifies CPython, the reference implementation of Python, to memoize funct
 knitr caches chunks of literate documents whose dependencies the author declares by hand [@xie2015knitr].
 jupyter-cache re-executes a notebook as a whole when any code cell changes [@jupytercache].
 Streamlit asks the author to choose between `cache_data`, for values identified by content, and `cache_resource`, for values identified by what produced them [@streamlit2023caching].
-marimo instead uses its key construction ({ref}`sec:dispatch`) to make that choice for each reference, while its reactive graph supplies a reuse boundary around every cell.
+marimo instead uses its key construction ({ref}`sec:dispatch`) to make that choice for each reference, while its dataflow graph supplies a reuse boundary around every cell.
 
 There are a few existing scientific-Python memoizers (for comparison to this work see {ref}`sec:eval`).
 The most similar, mandala [@makelov2024mandala], provides the end-to-end comparison by memoizing execution inside a `with storage:` context, computing content addresses with `joblib.hash`, and recording which calls produced which values.
@@ -178,7 +178,7 @@ Throughout, $H$ denotes the hash function, and $H(c)$ denotes the hash of cell $
 The cells `y = x + 1` and `y = x - 1` may have exactly the same "inputs", but they compute different outputs.
 As such, it would be incorrect to strictly use a cell's inputs to determine its cache key.
 Under the assumption that code is deterministic (see {ref}`sec:limitations` for a discussion of side effects), it follows that a cell's code must contribute to its cache key.
-By using cell code in key construction, basic invalidation is achieved (editing a cell changes its key, so its stale result is never reused).
+By using cell code in key construction, basic invalidation is achieved (editing a cell's executable code changes its key, so its stale result is not reused).
 
 Source-code formatting and comments should not change a code hash, but details such as the Python version potentially should.
 marimo therefore hashes the compiled bytecode rather than the source text.
@@ -202,7 +202,7 @@ mo.image("figs/fig1_dispatch.png", width="100%")
 
 Hashing compiled code accounts for changes to the body of a cached cell, but not for changes to the values that the cell uses.
 If the cell has no references, its code hash is the only contribution to its key.
-Otherwise, the hash key must account for values defined outside of the cached cell.
+Otherwise, the cache key must account for values defined outside of the cached cell.
 Each reference contributes either a hash of its value or the key of the cell that produced it.
 We call this choice the *key dispatch*.
 The dispatch algorithm is illustrated in {ref}`fig:dispatch` and outlines three resulting cell-key categories: code only, content-addressed, and producer substitution, labeled in the figure as `Pure`, `ContentAddressed`, and `ExecutionPath`, respectively.
@@ -217,8 +217,8 @@ Here, the hash is computed from the contiguous buffer without serialization, an 
 
 A reference is hashed via "execution path" or **producer substitution** when marimo cannot content-address the reference but knows which upstream cell initialized the value.
 In this case, it substitutes the producing cell's key for the value's hash.
-The producing cell's key is built by this same construction, so it covers the producer's code, the producer's inputs, and, by the same rule, everything upstream of them.
-A change anywhere in the value's ancestry therefore changes the reference's hash.
+The producing cell's key is built by this same construction, so it covers the producer's code and inputs and recursively includes any producer keys substituted upstream.
+A change to one of these contributions therefore changes the reference's hash.
 
 ### Combining hashes
 
@@ -244,12 +244,12 @@ To keep false negatives rare, invalidation should also be limited, and an edit s
 Additionally, updating keys should be cheap.
 The two subsections below establish each property in turn.
 
-### Invalidation never misses a change
+### Invalidation does not miss tracked changes
 
 When the bytes of a content-addressed reference change, the hash changes, and so does every key built from it.
 However, the ``producer substitution'' case requires an argument tied directly to the notebook's execution.
-Because marimo is a _reactive_ notebook, a value can change only if the cell that produced it re-runs, and a cell re-runs only when its own code or inputs change, which are the ingredients of its key.
-An unchanged producer key therefore implies an unchanged value, provided cell bodies are deterministic; {ref}`sec:limitations` discusses side effects and mutations that bypass the dataflow graph.
+Because marimo is a _reactive_ notebook, a value can change only if the cell that produced it re-runs, and a cell reactively re-runs only when its own code or inputs change, which are the components of its key.
+Provided that cell bodies are deterministic, an unchanged producer key therefore implies an unchanged value; {ref}`sec:limitations` discusses side effects and mutations that bypass the dataflow graph.
 
 ### Invalidation is limited and cheap
 
@@ -258,7 +258,7 @@ By this definition, the notebook's keys form a Merkle directed acyclic graph (DA
 Two properties follow.
 First, editing a cell can change keys only in the cells downstream of the edit, so every other cached result in the notebook remains valid.
 Second, the change does not always reach everything downstream: where a re-run cell produces byte-identical values, its content-addressed consumers keep their old keys, and the propagation stops there.
-Recomputing keys after an edit takes time proportional to the number of cells whose keys change, because every other cell's recorded key is simply reused.
+After an edit, marimo recomputes keys only for cells reached by reactive execution, and every other cell's recorded key is reused.
 
 ### A worked example
 
